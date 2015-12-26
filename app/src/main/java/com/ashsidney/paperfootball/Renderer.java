@@ -1,0 +1,263 @@
+package com.ashsidney.paperfootball;
+
+import java.util.ArrayList;
+
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.view.SurfaceHolder;
+import android.os.SystemClock;
+
+
+public class Renderer extends Thread implements SurfaceHolder.Callback
+{
+  public Renderer ()
+  {
+  }
+
+  public void startRendering ()
+  {
+    setRunning(true);
+    start();
+  }
+
+  public void stopRendering ()
+  {
+    setRunning(false);
+    doRedraw();
+    try
+    {
+      join();
+    }
+    catch (Exception e) {}
+  }
+
+  public synchronized void doRedraw ()
+  {
+    notify();
+  }
+  
+  protected synchronized void waitRedraw ()
+  {
+    try
+    {
+      if (isAnimation())
+        wait(frameWait);
+      else
+        wait();
+    }
+    catch (Exception e) {}
+  }
+
+  @Override
+  public void run ()
+  {
+    while (isRunning())
+    {
+      if (isReady())
+        redraw();
+      waitRedraw();
+    }
+  }
+
+  protected synchronized void setRunning (boolean running)
+  {
+    this.running = running;
+  }
+
+  public synchronized boolean isRunning ()
+  {
+    return running;
+  }
+
+  protected synchronized void setReady (boolean ready)
+  {
+    this.ready = ready;
+  }
+
+  public synchronized boolean isReady ()
+  {
+    return ready;
+  }
+
+  protected synchronized boolean isAnimation ()
+  {
+    return view.isAnimation() || !animations.isEmpty();
+  }
+
+  protected void redraw ()
+  {
+    Canvas canvas = holder.lockCanvas();
+    if (canvas == null)
+      return;
+
+    float currTime = SystemClock.uptimeMillis() * 0.001f;
+
+    RectF world = new RectF(view.draw(canvas, currTime));
+
+    canvas.drawColor(backgroundColor);
+
+    Paint paint = new Paint();
+    paint.setColor(backLineColor);
+        
+    for (float x = (float)Math.ceil(world.left); x <= world.right; x += 1.0f)
+      canvas.drawLine(x, world.top, x, world.bottom, paint);
+    for (float y = (float)Math.ceil(world.top); y <= world.bottom; y += 1.0f)
+      canvas.drawLine(world.left, y, world.right, y, paint);
+    
+    goal.draw(canvas, currTime);
+
+    GameNode animNode = null;
+    float[] animPosition = null;
+    while (!animations.isEmpty())
+    {
+      BallAnimation currAnim = getAnimation();
+      animNode = currAnim.getStartNode();
+      if (!currAnim.isStarted())
+      {
+        ball.startAnim(currAnim.getSequence(), currTime, currAnim.getForward(), true);
+        currAnim.setAnimTime(currTime, ball.getAnimTime());
+      }
+      animPosition = currAnim.getPosition(currTime);
+      if (currAnim.isEnded(currTime))
+      {
+        removeAnimation();
+        animNode = null;
+      }
+      else
+        break;
+    }
+
+    // vykresli drahu hry
+    paint.setStrokeWidth(0.1f);
+    paint.setStrokeCap(Paint.Cap.ROUND);
+    GameNode node = game.getGoal();
+    while (node != animNode)
+    {
+      paint.setColor(playerColor[node.getPlayer()]);
+      GameNode nNode = node.getNext();
+      if (nNode != null)
+        canvas.drawLine(node.getPosition()[0], node.getPosition()[1], nNode.getPosition()[0], nNode.getPosition()[1], paint);
+      node = nNode;
+    }
+    if (animNode != null)
+    {
+      paint.setColor(playerColor[animNode.getPlayer()]);
+      canvas.drawLine(animNode.getPosition()[0], animNode.getPosition()[1], animPosition[0], animPosition[1], paint);
+    }
+
+    if (animPosition != null)
+      ball.setPosition(animPosition);
+    ball.draw(canvas, currTime);
+    
+    if (currentMenu != null)
+    {
+      currentMenu.draw(canvas, currTime);
+    }
+    
+    holder.unlockCanvasAndPost(canvas);
+  }
+  
+  public void setGame (Game game)
+  {
+    if (this.game != game)
+    {
+      this.game = game;
+      game.setRenderer(this);
+    }
+  }
+
+  public void setView (ViewData data)
+  {
+    if (view != data)
+    {
+      view = data;
+      view.setRenderer(this);
+    }
+  }
+  
+  public void setGoal (Sprite sprite)
+  {
+    goal = sprite;
+  }
+  
+  public void setBall (AnimSprite sprite)
+  {
+    ball = sprite;
+    ball.setPosition(game.getBall().getPosition());
+  }
+  
+  public void setFrameWait (long fw)
+  {
+    frameWait = fw;
+  }
+  
+  public synchronized BallAnimation getAnimation ()
+  {
+    return animations.isEmpty() ? null : animations.get(0);
+  }
+  
+  public synchronized void addAnimation (BallAnimation anim)
+  {
+    animations.add(anim);
+    doRedraw();
+  }
+
+  public synchronized void removeAnimation ()
+  {
+    if (!animations.isEmpty())
+      animations.remove(0);
+  }
+
+  public Menu getMenu ()
+  {
+    return currentMenu;
+  }
+
+  public synchronized void setMenu (Menu menu)
+  {
+    currentMenu = menu;
+  }
+
+  @Override
+  public void surfaceChanged (SurfaceHolder holder, int format, int width, int height)
+  {
+    this.holder = holder;
+    view.setSizes(width, height);
+    setReady(true);
+    doRedraw();
+  }
+
+  @Override
+  public void surfaceCreated (SurfaceHolder holder)
+  {
+    this.holder = holder;
+  }
+
+  @Override
+  public void surfaceDestroyed (SurfaceHolder holder)
+  {
+    setReady(false);
+    holder = null;
+  }
+  
+  
+  protected SurfaceHolder holder = null;
+  protected ViewData view = null;
+  protected Game game = null;
+  protected Menu currentMenu = null;
+
+  protected boolean running = false;
+  protected boolean ready = false;
+  protected long frameWait = 10;
+
+  private int backgroundColor = 0xffffffff;
+  private int backLineColor = 0xff8080ff;
+  
+  private Sprite goal;
+  private AnimSprite ball;
+  
+  private ArrayList<BallAnimation> animations = new ArrayList<BallAnimation>();
+  
+  private static int[] playerColor = {  0, 0xff0000ff, 0xffff0000 };
+}

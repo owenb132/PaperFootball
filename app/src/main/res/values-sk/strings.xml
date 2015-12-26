@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Papierový futbal</string>
+    <string name="action_settings">Nastavenia</string>
+
+    <string name="defender">Obranca</string>
+    <string name="striker">Útočník</string>
+    <string name="move">Ťah: </string>
+    <string name="hasWon"> vyhral.</string>
+
+    <string name="startGame">JEDEN HRÁČ</string>
+    <string name="startGame2">DVAJA HRÁČI</string>
+    <string name="options">MOŽNOSTI</string>
+
+</resources>

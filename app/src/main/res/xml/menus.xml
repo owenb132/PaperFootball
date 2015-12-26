@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <menu android:id="@+id/hlavneMenu">
+    <menu_item android:id="@+id/startMenu">
+      <label android:id="@string/startGame"/>
+      <background android:id="@drawable/menu_background"/>
+      <position orientation="both" row="0" column="0"/>
+      <action class="runGame"/>
+    </menu_item>  
+    <menu_item android:id="@+id/startMenu2">
+      <label android:id="@string/startGame2"/>
+      <background android:id="@drawable/menu_background"/>
+      <position orientation="both" row="1" column="0"/>
+    </menu_item>
+    <menu_item android:id="@+id/startMenu3">
+      <label android:id="@string/options"/>
+      <background android:id="@drawable/menu_background"/>
+      <position orientation="both" row="2" column="0"/>
+    </menu_item>
+  </menu>
+</resources>
