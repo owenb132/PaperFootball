@@ -17,6 +17,8 @@ public class PaperFootballActivity extends AppCompatActivity
   @Override
   protected void onCreate(Bundle savedInstanceState)
   {
+    myActivity = this;
+
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_paper_football);
     // fragment so zachovanymi datami
@@ -37,19 +39,18 @@ public class PaperFootballActivity extends AppCompatActivity
     game.setRenderer(renderer);
 
     renderer.setView(viewData);
-    renderer.setGoal(new Sprite(R.drawable.goal, 2.0f, getResources()));
-    renderer.setBall(new BallSprite(1.0f, getResources()));
+
+    XMLHelper xml = new XMLHelper();
+    xml.load(renderer, R.xml.sprites, getResources());
 
     SurfaceView view = (SurfaceView)findViewById(R.id.hraciaPlocha);
     view.getHolder().addCallback(renderer);
 
     gestureHandler = new ZoomRotateGestureHandler(this, view);
-    gestureHandler.addTransformer(viewData);
-    gestureHandler.addConsumer(game);
+    gestureHandler.add(game);
+    gestureHandler.add(viewData);
 
     renderer.startRendering();
-
-    TitleHandler.setActivity(this);
 
     loadMenus(R.id.hlavneMenu);
   }
@@ -80,35 +81,33 @@ public class PaperFootballActivity extends AppCompatActivity
     return super.onTouchEvent(event);
   }
 
-  /// nastav menu na zobrazenie alebo ho vypni (0)
-  public void setMenu (int menuID)
+  /// nastav menu na zobrazenie
+  public void openMenu (int menuID)
   {
-    // ak je 0, vypni menu
-    if (menuID <= 0 && renderer.getMenu() != null)
-    {
-      // zrus menu v rendereri
-      renderer.setMenu(null);
-      // odstran aktualne menu zo zoznamu na spracovanie gest
-      gestureHandler.removeTransformer();
-      return;
-    }
-    // ak nie su nacitane menu, skonci
-    if (menus == null)
-      return;
-
     // najdi menu s pozadovanym id a zobraz ho
-    for (int i = 0; i < menus.size(); ++i)
-    {
-      Menu menu = menus.get(i);
+    for (Menu menu : menus)
       if (menu.getMenuID() == menuID)
       {
         // nastav menu na zobrazenie
-        renderer.setMenu(menu);
+        renderer.addUI(menu);
         // nastav menu na gesta
-        gestureHandler.addTransformer(menu);
-        return;
+        gestureHandler.add(menu);
+        break;
       }
-    }
+  }
+
+  public void closeMenu (int menuID)
+  {
+    // najdi menu s pozadovanym id a odstran ho
+    for (Menu menu : menus)
+      if (menu.getMenuID() == menuID)
+      {
+        // nastav menu na zobrazenie
+        renderer.removeUI(menu);
+        // nastav menu na gesta
+        gestureHandler.remove(menu);
+        break;
+      }
   }
 
   /**
@@ -120,14 +119,14 @@ public class PaperFootballActivity extends AppCompatActivity
 
     try
     {
-      menus = Menu.loadMenus(R.xml.menus, getResources());
+      Menu.loadMenus(menus, R.xml.menus, getResources());
     }
     catch (Exception e)
     {
       Log.e("PaperFootball", "Menu load failed:" + e.getMessage());
     }
     // nastav menu na zobrazenie
-    setMenu(openMenu);
+    openMenu(openMenu);
   }
 
   protected Renderer renderer = new Renderer();
@@ -135,27 +134,15 @@ public class PaperFootballActivity extends AppCompatActivity
   protected Game game;
   protected ViewData viewData;
   protected GestureHandler gestureHandler;
-  protected ArrayList<Menu> menus = null;
+  protected ArrayList<Menu> menus = new ArrayList<>();
 
-  /*@Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_paper_football, menu);
-    return true;
+  /**
+   * Get current activity.
+   */
+  public static PaperFootballActivity GetActivity ()
+  {
+    return myActivity;
   }
 
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-        return true;
-    }
-
-    return super.onOptionsItemSelected(item);
-  }*/
+  private static PaperFootballActivity myActivity = null;
 }

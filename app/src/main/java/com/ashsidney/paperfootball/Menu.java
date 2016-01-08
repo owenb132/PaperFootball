@@ -11,14 +11,18 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.text.TextPaint;
 
-public class Menu implements GestureHandler.Listener
+public class Menu implements Renderer.UILayer, GestureHandler.Listener
 {
-  public Menu (XmlPullParser parser, Resources res) throws XmlPullParserException, IOException
+  public Menu (XMLHelper xml) throws XmlPullParserException, IOException
   {
-    menuID = XMLHelper.getAttributeID(parser, "id");
-    for (int eventType = parser.next(); eventType != XmlPullParser.END_TAG; eventType = parser.next())
+    menuID = xml.getAttributeID("id");
+    /*for (int eventType = parser.next(); eventType != XmlPullParser.END_TAG; eventType = parser.next())
       if (eventType == XmlPullParser.START_TAG && parser.getName().equals(MenuItem.Tag))
-        items.add(new MenuItem(this, parser, res));
+      {
+        MenuItem item = new MenuItem(this);
+        item.loadConfiguration(parser, res);
+        items.add(item);
+      }*/
   }
   
   public void draw (Canvas canvas, float currTime)
@@ -34,8 +38,8 @@ public class Menu implements GestureHandler.Listener
 
     canvas.save();
     canvas.setMatrix(matrix);
-    for (int i = 0; i < items.size(); ++i)
-      items.get(i).draw(canvas, paint, currTime);
+    /*for (int i = 0; i < items.size(); ++i)
+      items.get(i).draw(canvas, paint, currTime);*/
     canvas.restore();
   }
 
@@ -49,9 +53,9 @@ public class Menu implements GestureHandler.Listener
       float[] point = event.getTransformation().getTranslation();
       matrix.mapPoints(point);
       // zisti, ktora polozka menu bola stlacena
-      for (int i = 0; i < items.size(); ++i)
+      /*for (int i = 0; i < items.size(); ++i)
         if (items.get(i).press(point))
-          return true;
+          return true;*/
     }
     return false;
   }
@@ -69,13 +73,13 @@ public class Menu implements GestureHandler.Listener
 
   public void close ()
   {
-    renderer.setMenu(null);
+    //renderer.setMenu(null);
   }
 
 
   protected void calcMenuPosition (Canvas canvas, TextPaint paint)
   {
-    int orientation = canvas.getWidth() > canvas.getHeight() ? Menu.LandscapeOrientation : Menu.PortraitOrientation;
+    /*int orientation = canvas.getWidth() > canvas.getHeight() ? Menu.LandscapeOrientation : Menu.PortraitOrientation;
 
     // urci rozsahy menu
     int menuOffset[] = { Integer.MAX_VALUE, Integer.MAX_VALUE };
@@ -161,40 +165,27 @@ public class Menu implements GestureHandler.Listener
       if (ratio < minRatio)
         minRatio = ratio;
     }
-    fontSize *= minRatio;
+    fontSize *= minRatio;*/
   }
 
   
-  static public ArrayList<Menu> loadMenus (int menusID, Resources res) throws XmlPullParserException, IOException
+  static public void loadMenus (ArrayList<Menu> menus, int menusID, Resources res)
+    throws XmlPullParserException, IOException
   {
-    XmlPullParser parser = res.getXml(menusID);
-    
-    ArrayList<Menu> menus = new ArrayList<>();
-    
+   /* XmlPullParser parser = XMLHelper.openXML(menusID, res);
+
     for (int eventType = parser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = parser.next())
-    {
       if (eventType == XmlPullParser.START_TAG && parser.getName().equals(Tag))
-      {
-        menus.add(new Menu(parser, res));
-      }
-    }
-    
-    return menus;
+        menus.add(new Menu(parser, res));*/
   }
   
   
   
   public static final String Tag = "menu";
-  
-  public static final int PortraitOrientation = 1;
-  public static final int LandscapeOrientation = 2;
-  public static final int BothOrientations = PortraitOrientation | LandscapeOrientation;
-  
-  public static final String[] OrientationIDs = { null, "portrait", "landscape", "both" };
-  
+
   
   protected int menuID;
-  protected ArrayList<MenuItem> items = new ArrayList<>();
+  //protected ArrayList<MenuItem> items = new ArrayList<>();
 
   protected Renderer renderer;
   

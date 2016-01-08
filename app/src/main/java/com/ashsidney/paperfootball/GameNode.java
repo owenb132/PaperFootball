@@ -104,7 +104,7 @@ public class GameNode
       completeNeighbors();
 
       // zozbieraj uzly pre vypocet vzdialenosti
-      HashSet<GameNode> nodes = new HashSet<GameNode>();
+      HashSet<GameNode> nodes = new HashSet<>();
       for (int i = 0; i < 4; ++i)
         if (neighbors[i] != null)
           neighbors[i].collectForDistance(nodes, lastDistance);

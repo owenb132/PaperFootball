@@ -7,17 +7,34 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
-public class Sprite
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+public class Sprite implements XMLHelper.ConfigOwner
 {
-  public Sprite ()
-  {}
-  
-  public Sprite (int spriteID, float width, Resources res)
+  public void load (XMLHelper xml)
+      throws XmlPullParserException, Resources.NotFoundException, IOException
   {
-    bitmap = loadBitmap(spriteID, res);
-    initScale(width);
+    itemID = xml.getAttributeID("id");
+    xml.loadChildNodes(this);
   }
-  
+
+  public boolean createChild (XMLHelper xml)
+    throws IOException, XmlPullParserException
+  {
+    switch (xml.parser.getName())
+    {
+      case BitmapTag:
+        bitmap = loadBitmap(xml.getAttributeID("id"), xml.resources);
+        return true;
+      case WidthTag:
+        initScale(xml.getAttributeFloat("value"));
+        return true;
+    }
+    return false;
+  }
+
   public void draw (Canvas canvas, float currTime)
   {
     draw(canvas, bitmap);
@@ -26,6 +43,11 @@ public class Sprite
   protected void draw (Canvas canvas, Bitmap bitmap)
   {
     canvas.drawBitmap(bitmap, fullTransform, new Paint());
+  }
+
+  public int getID ()
+  {
+    return itemID;
   }
   
   public void setTransform (Matrix trans)
@@ -41,17 +63,16 @@ public class Sprite
     setTransform(trans);
   }
   
-  public int getWidth ()
+  public float getWidth ()
   {
-    return bitmap != null ? bitmap.getWidth() : 0;
+    return bitmap != null ? bitmap.getWidth() * getScale() : 0;
   }
   
-  public int getHeight ()
+  public float getHeight ()
   {
-    return bitmap != null ? bitmap.getHeight() : 0;
+    return bitmap != null ? bitmap.getHeight() * getScale() : 0;
   }
-  
-  
+
   protected Bitmap loadBitmap (int spriteID, Resources res)
   {
     BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -67,16 +88,27 @@ public class Sprite
     
     calcFullTransform();
   }
-  
+
+  protected float getScale ()
+  {
+    float vec[] = { 1.0f, 1.0f };
+    scaleMat.mapVectors(vec);
+    return vec[0];
+  }
+
   protected void calcFullTransform ()
   {
     fullTransform.set(scaleMat);
     if (transform != null)
       fullTransform.postConcat(transform);
   }
-  
+
+  protected int itemID = 0;
   protected Bitmap bitmap = null;
   protected Matrix scaleMat = new Matrix();
   protected Matrix transform = null;
   protected Matrix fullTransform = new Matrix();
+
+  public static final String BitmapTag = "bitmap";
+  public static final String WidthTag = "width";
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <sprite android:id="@+id/branka">
+    <bitmap android:id="@drawable/goal"/>
+    <width value="2.0"/>
+  </sprite>
+  <animSprite android:id="@+id/lopta">
+    <bitmap android:id="@drawable/ball"/>
+    <width value="0.8148733" formula="2.56 / PI"/>
+    <animation time="1.0">
+      <bitmap android:id="@drawable/ball_h00"/>
+      <bitmap android:id="@drawable/ball_h01"/>
+      <bitmap android:id="@drawable/ball_h02"/>
+      <bitmap android:id="@drawable/ball_h03"/>
+      <bitmap android:id="@drawable/ball_h04"/>
+      <bitmap android:id="@drawable/ball_h05"/>
+      <bitmap android:id="@drawable/ball_h06"/>
+      <bitmap android:id="@drawable/ball_h07"/>
+      <bitmap android:id="@drawable/ball_h08"/>
+      <bitmap android:id="@drawable/ball_h09"/>
+      <bitmap android:id="@drawable/ball_h10"/>
+      <bitmap android:id="@drawable/ball_h11"/>
+      <bitmap android:id="@drawable/ball_h12"/>
+      <bitmap android:id="@drawable/ball_h13"/>
+      <bitmap android:id="@drawable/ball_h14"/>
+      <bitmap android:id="@drawable/ball_h15"/>
+      <bitmap android:id="@drawable/ball_h16"/>
+    </animation>
+    <animation time="1.0">
+      <bitmap android:id="@drawable/ball_v00"/>
+      <bitmap android:id="@drawable/ball_v01"/>
+      <bitmap android:id="@drawable/ball_v02"/>
+      <bitmap android:id="@drawable/ball_v03"/>
+      <bitmap android:id="@drawable/ball_v04"/>
+      <bitmap android:id="@drawable/ball_v05"/>
+      <bitmap android:id="@drawable/ball_v06"/>
+      <bitmap android:id="@drawable/ball_v07"/>
+      <bitmap android:id="@drawable/ball_v08"/>
+      <bitmap android:id="@drawable/ball_v09"/>
+      <bitmap android:id="@drawable/ball_v10"/>
+      <bitmap android:id="@drawable/ball_v11"/>
+      <bitmap android:id="@drawable/ball_v12"/>
+      <bitmap android:id="@drawable/ball_v13"/>
+      <bitmap android:id="@drawable/ball_v14"/>
+      <bitmap android:id="@drawable/ball_v15"/>
+      <bitmap android:id="@drawable/ball_v16"/>
+    </animation>
+  </animSprite>
+</resources>

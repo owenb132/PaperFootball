@@ -1,25 +1,51 @@
 package com.ashsidney.paperfootball;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 
 public class AnimSprite extends Sprite
 {
-  public AnimSprite (int spriteID, float width, Resources res)
+  @Override
+  public boolean createChild (XMLHelper xml)
+    throws IOException, XmlPullParserException
   {
-    super(spriteID, width, res);
-  }
-  
-  protected class Animation
-  {
-    public Animation (int[] spriteID, Resources res, float time)
+    if (super.createChild(xml))
+      return true;
+    switch (xml.parser.getName())
     {
-      animTime = time;
-      for (int i = 0; i < spriteID.length; ++i)
-        bitmaps.add(loadBitmap(spriteID[i], res));
+      case AnimationTag:
+        Animation anim = new Animation();
+        anim.load(xml);
+        animation.add(anim);
+        return true;
+    }
+    return false;
+  }
+
+  protected class Animation implements XMLHelper.ConfigOwner
+  {
+    public void load (XMLHelper xml)
+      throws IOException, XmlPullParserException
+    {
+      animTime = xml.getAttributeFloat("time");
+      xml.loadChildNodes(this);
+    }
+
+    public boolean createChild (XMLHelper xml)
+      throws IOException, XmlPullParserException
+    {
+      switch (xml.parser.getName())
+      {
+        case BitmapTag:
+          bitmaps.add(loadBitmap(xml.getAttributeID("id"), xml.resources));
+          return true;
+      }
+      return false;
     }
     
     public float getAnimTime ()
@@ -37,15 +63,10 @@ public class AnimSprite extends Sprite
       return bitmaps.get(index);
     }
     
-    protected ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
+    protected ArrayList<Bitmap> bitmaps = new ArrayList<>();
     protected float animTime;
   }
-  
-  public void addAnim (int[] spriteID, Resources res, float animTime)
-  {
-    animation.add(new Animation(spriteID, res, animTime));
-  }
-  
+
   @Override
   public void draw (Canvas canvas, float currTime)
   {
@@ -87,11 +108,14 @@ public class AnimSprite extends Sprite
     return animTime;
   }
   
-  protected ArrayList<Animation> animation = new ArrayList<Animation>();
+  protected ArrayList<Animation> animation = new ArrayList<>();
   
   protected float startTime = 0.0f;
   protected float animTime = 0.0f;
   protected int animSequence = 0;
   protected boolean forward = true;
   protected boolean noRepeat = true;
+
+  public static final String AnimationTag = "animation";
+
 }

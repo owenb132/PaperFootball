@@ -1,20 +1,20 @@
 package com.ashsidney.paperfootball;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.os.SystemClock;
 
+import org.xmlpull.v1.XmlPullParserException;
 
-public class Renderer extends Thread implements SurfaceHolder.Callback
+
+public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelper.ConfigOwner
 {
-  public Renderer ()
-  {
-  }
-
   public void startRendering ()
   {
     setRunning(true);
@@ -29,7 +29,10 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
     {
       join();
     }
-    catch (Exception e) {}
+    catch (Exception e)
+    {
+      Log.e("PaperFootball", "Thread interupted while waiting to join()");
+    }
   }
 
   public synchronized void doRedraw ()
@@ -46,7 +49,10 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
       else
         wait();
     }
-    catch (Exception e) {}
+    catch (Exception e)
+    {
+      Log.e("PaperFootball", "Thread was interrupted");
+    }
   }
 
   @Override
@@ -132,7 +138,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
     paint.setStrokeWidth(0.1f);
     paint.setStrokeCap(Paint.Cap.ROUND);
     GameNode node = game.getGoal();
-    while (node != animNode)
+    while (node != animNode && node != null)
     {
       paint.setColor(playerColor[node.getPlayer()]);
       GameNode nNode = node.getNext();
@@ -149,12 +155,10 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
     if (animPosition != null)
       ball.setPosition(animPosition);
     ball.draw(canvas, currTime);
-    
-    if (currentMenu != null)
-    {
-      currentMenu.draw(canvas, currTime);
-    }
-    
+
+    for (UILayer uiLayer : uiLayers)
+      uiLayer.draw(canvas, currTime);
+
     holder.unlockCanvasAndPost(canvas);
   }
   
@@ -175,18 +179,26 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
       view.setRenderer(this);
     }
   }
-  
-  public void setGoal (Sprite sprite)
+
+  public boolean createChild (XMLHelper xml) throws IOException,
+      XmlPullParserException
   {
-    goal = sprite;
+    Sprite sprite = SpriteFactory.create(xml);
+
+    if (sprite != null)
+      switch (sprite.getID())
+      {
+        case R.id.branka:
+          goal = sprite;
+          return true;
+        case R.id.lopta:
+          ball = (AnimSprite)sprite;
+          ball.setPosition(game.getBall().getPosition());
+          return true;
+      }
+    return false;
   }
-  
-  public void setBall (AnimSprite sprite)
-  {
-    ball = sprite;
-    ball.setPosition(game.getBall().getPosition());
-  }
-  
+
   public void setFrameWait (long fw)
   {
     frameWait = fw;
@@ -209,14 +221,19 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
       animations.remove(0);
   }
 
-  public Menu getMenu ()
+  public interface UILayer
   {
-    return currentMenu;
+    void draw (Canvas canvas, float currTime);
   }
 
-  public synchronized void setMenu (Menu menu)
+  public synchronized void addUI (UILayer layer)
   {
-    currentMenu = menu;
+    uiLayers.add(layer);
+  }
+
+  public synchronized void removeUI (UILayer layer)
+  {
+    uiLayers.remove(layer);
   }
 
   @Override
@@ -238,14 +255,14 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
   public void surfaceDestroyed (SurfaceHolder holder)
   {
     setReady(false);
-    holder = null;
+    this.holder = null;
   }
   
   
   protected SurfaceHolder holder = null;
   protected ViewData view = null;
   protected Game game = null;
-  protected Menu currentMenu = null;
+  protected ArrayList<UILayer> uiLayers = new ArrayList<>();
 
   protected boolean running = false;
   protected boolean ready = false;
@@ -257,7 +274,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback
   private Sprite goal;
   private AnimSprite ball;
   
-  private ArrayList<BallAnimation> animations = new ArrayList<BallAnimation>();
+  private ArrayList<BallAnimation> animations = new ArrayList<>();
   
-  private static int[] playerColor = {  0, 0xff0000ff, 0xffff0000 };
+  private static int[] playerColor = {  0, 0xff00ff00, 0xffff0000 };
 }

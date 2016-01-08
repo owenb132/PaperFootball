@@ -20,12 +20,12 @@ public class MenuActionFactory
 
     try
     {
-      switch(XMLHelper.getAttributeValue(parser, "class"))
+      /*switch(XMLHelper.getAttributeValue(parser, "class"))
       {
         case "runGame":
           action = new MenuActionRunGame(menu, currentGame);
           break;
-      }
+      }*/
 
       if (action != null)
         action.setup(parser);

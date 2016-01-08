@@ -3,7 +3,6 @@ package com.ashsidney.paperfootball;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 
 public class GestureHandler
@@ -19,52 +18,23 @@ public class GestureHandler
     return false;
   }
   
-  public void addTransformer (Listener listener)
+  public void add (Listener listener)
   {
-    if (listener != null)
-    {
-      if (currTransformer != null)
-        transformers.add(currTransformer);
-      currTransformer = listener;
-    }
+    assert listener != null;
+    listeners.add(0, listener);
   }
 
-  public void removeTransformer ()
+  public void remove (Listener listener)
   {
-    if (transformers.isEmpty())
-      currTransformer = null;
-    else
-    {
-      int lastIdx = transformers.size() - 1;
-      currTransformer = transformers.get(lastIdx);
-      transformers.remove(lastIdx);
-    }
-  }
-  
-  public void addConsumer (Listener listener)
-  {
-    if (listener != null)
-      consumers.add(listener);
-  }
-  
-  public void removeConsumer (Listener listener)
-  {
-    int lastIdx = consumers.lastIndexOf(listener);
-    if (lastIdx >= 0)
-      consumers.remove(lastIdx);
+    assert listener != null;
+    listeners.remove(listener);
   }
 
   protected void sendGesture (GestureEvent event)
   {
-    if (currTransformer != null)
-      currTransformer.onGesture(event);
-    for (Listener consumer : consumers)
-      consumer.onGesture(event);
+    for (Listener lst : listeners)
+      lst.onGesture(event);
   }
 
-
-  protected Listener currTransformer = null;
-  protected ArrayList<Listener> transformers = new ArrayList<>();
-
-  protected ArrayList<Listener> consumers = new ArrayList<>();
+  protected ArrayList<Listener> listeners = new ArrayList<>();
 }

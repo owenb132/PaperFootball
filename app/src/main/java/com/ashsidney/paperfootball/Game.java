@@ -83,7 +83,7 @@ public class Game implements GestureHandler.Listener
       if (ballNode == goalNode || !ballNode.isAbleToPlay(playerMoves == 1))
       {
         Toast.makeText(context, "Game Over", Toast.LENGTH_SHORT).show();
-        TitleHandler.restore();
+        InfoHandler.restore();
       }
       else
         moveReady();
@@ -107,7 +107,7 @@ public class Game implements GestureHandler.Listener
   
   protected void moveReady ()
   {
-    TitleHandler.setTitle((String)context.getResources().getText(R.string.move) + playerNames[currPlayer - 1]);
+    //InfoHandler.setTitle((String) context.getResources().getText(R.string.move) + playerNames[currPlayer - 1]);
   }
   
   protected Context context;
