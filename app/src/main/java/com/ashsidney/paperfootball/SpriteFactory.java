@@ -1,8 +1,5 @@
 package com.ashsidney.paperfootball;
 
-import android.content.res.Resources;
-
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
