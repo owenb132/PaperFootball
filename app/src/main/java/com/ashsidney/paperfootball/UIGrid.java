@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextPaint;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -15,13 +16,15 @@ import java.util.HashMap;
  */
 public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
 {
-  public void load (XMLHelper xml, Resources res)
+  @Override
+  public void load (XMLHelper xml)
       throws XmlPullParserException, Resources.NotFoundException, IOException
   {
     gridID = xml.getAttributeID("id");
     xml.loadChildNodes(this);
   }
 
+  @Override
   public boolean createChild (XMLHelper xml)
       throws IOException, XmlPullParserException
   {
@@ -45,6 +48,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
     return false;
   }
 
+  @Override
   public void draw (Canvas canvas, float currTime)
   {
     TextPaint paint = new TextPaint();
@@ -52,7 +56,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       ? OrientedPosition.LandscapeOrientation : OrientedPosition.PortraitOrientation;
 
     if (initLayout)
-      initLayout = calcItemPositions(canvas, paint);
+      initLayout = calcItemPositions(canvas, paint, orient);
 
     canvas.save();
     canvas.setMatrix(viewMatrix);
@@ -64,6 +68,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
 
     canvas.restore();
   }
+
 
   public class OrientedPosition implements XMLHelper.ConfigOwner
   {
@@ -109,6 +114,11 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       return visualRepresentation != null;
     }
 
+    public boolean isOriented (int orient)
+    {
+      return (orientation & orient) != 0;
+    }
+
     public Sprite visualRepresentation = null;
 
     public int orientation = BothOrientations;
@@ -132,6 +142,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
   public static final String[] OrientationIDs = { null, "portrait", "landscape", "both" };
   public static final String[] StretchIDs = { "none", "horizontal", "vertical", "both" };
 
+
   public class Item implements XMLHelper.ConfigOwner
   {
     public void load (XMLHelper xml) throws IOException, XmlPullParserException
@@ -143,6 +154,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       xml.loadChildNodes(this);
     }
 
+    @Override
     public boolean createChild (XMLHelper xml)
         throws IOException, XmlPullParserException
     {
@@ -175,6 +187,14 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       return fontGroupID;
     }
 
+    protected OrientedPosition getPosition (int orient)
+    {
+      for (OrientedPosition pos : positions)
+        if (pos.isOriented(orient))
+          return pos;
+      return null;
+    }
+
     /// identifikator polozky menu
     protected int itemID;
     /// akcia vykonana, ked je polozka UI aktivovana
@@ -204,8 +224,96 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
     public ArrayList<Item> items = new ArrayList<>();
   }
 
-  protected boolean calcItemPositions (Canvas canvas, TextPaint paint)
+  protected boolean calcItemPositions (Canvas canvas, TextPaint paint, int orient)
   {
+    // urci rozsahy menu
+    int offsets[] = { Integer.MAX_VALUE, Integer.MAX_VALUE };
+    int sizes[] = { Integer.MIN_VALUE, Integer.MIN_VALUE };
+    for (FontGroup group : groups.values())
+      for (Item item : group.items)
+      {
+        OrientedPosition pos = item.getPosition(orient);
+        int pos[] = { item.getColumn(orient), item.getRow(orient) };
+        int size[] = { item.getColSpan(orient), item.getRowSpan(orient) };
+        for (int mi = 0; mi < 2; ++mi)
+        {
+          if (offsets[mi] > pos[mi])
+            offsets[mi] = pos[mi];
+          else if (sizes[mi] < pos[mi])
+            sizes[mi] = pos[mi];
+        }
+      }
+
+    // vypocitaj celkove rozmery menu
+    for (int i = 0; i < 2; ++i)
+      sizes[i] -= offsets[i] - 1;
+    int columnMax[] = new int[sizes[0]];
+    int rowMax[] = new int[sizes[1]];
+    for (FontGroup group : groups.values())
+      for (Item item : group.items)
+      {
+        int colIdx = item.getColumn(orient) - offsets[0];
+        int width = item.getWidth();
+        if (columnMax[colIdx] < width)
+          columnMax[colIdx] = width;
+        int rowIdx = item.getRow(orientation) - menuOffset[1];
+        int height = item.getHeight();
+        if (rowMax[rowIdx] < height)
+          rowMax[rowIdx] = height;
+      }
+    float colSum = 0.0f;
+    for (int i = 0; i < menuSize[0]; ++i)
+      colSum += columnMax[i];
+    float rowSum = 0.0f;
+    for (int i = 0; i < menuSize[1]; ++i)
+      rowSum += rowMax[i];
+
+    // urci zvacsenie menu
+    float scales[] = { canvas.getWidth() / colSum, canvas.getHeight() / rowSum };
+    float scale = scales[0] < scales[1] ? scales[0] : scales[1];
+    matrix.preScale(scale, scale);
+
+    // urci pozicie stlpcov a riadkov menu
+    float prevPos = 0.0f;
+    float stepCoef = scales[0] / scale;
+    float offCoef = (stepCoef - 1.0f) * 0.5f;
+    float columnPos[] = new float[menuSize[0]];
+    for (int i = 0; i < menuSize[0]; ++i)
+    {
+      columnPos[i] = columnMax[i] * offCoef + prevPos;
+      prevPos += columnMax[i] * stepCoef;
+    }
+    prevPos = 0.0f;
+    stepCoef = scales[1] / scale;
+    offCoef = (stepCoef - 1.0f) * 0.5f;
+    float rowPos[] = new float[menuSize[1]];
+    for (int i = 0; i < menuSize[1]; ++i)
+    {
+      rowPos[i] = rowMax[i] * offCoef + prevPos;
+      prevPos += rowMax[i] * stepCoef;
+    }
+
+    // nastav poziciu pre kazdy prvok menu
+    for (int i = 0; i < items.size(); ++i)
+    {
+      MenuItem item = items.get(i);
+      int colIdx = item.getColumn(orientation) - menuOffset[0];
+      int rowIdx = item.getRow(orientation) - menuOffset[1];
+      float itemPos[] = { columnPos[colIdx], rowPos[rowIdx] };
+      item.setPosition(itemPos);
+    }
+
+    // zmeraj pomery sirok textov a pozadi v prvkoch menu
+    paint.setTextSize(fontSize);
+    float minRatio = 1000.0f;
+    for (int i = 0; i < items.size(); ++i)
+    {
+      float ratio = items.get(i).measureText(paint);
+      if (ratio < minRatio)
+        minRatio = ratio;
+    }
+    fontSize *= minRatio;
+
     return false;
   }
 

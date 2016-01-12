@@ -3,6 +3,7 @@ package com.ashsidney.paperfootball;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -224,6 +225,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   public interface UILayer
   {
     void draw (Canvas canvas, float currTime);
+    void load (XMLHelper xml) throws XmlPullParserException, Resources.NotFoundException, IOException;
   }
 
   public synchronized void addUI (UILayer layer)
