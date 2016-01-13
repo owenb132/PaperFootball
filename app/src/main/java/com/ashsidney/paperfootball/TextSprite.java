@@ -41,7 +41,7 @@ public class TextSprite extends Sprite
   {
     TextPaint paint = new TextPaint();
     if (fontInitialize)
-      fontInitialize = calcFontSize(paint);
+      calcFontSize(paint);
     paint.setTextSize(fontSize);
     super.draw(canvas, currTime);
     float pos[] = { 0.0f, 0.0f };
@@ -51,20 +51,27 @@ public class TextSprite extends Sprite
     canvas.drawText(text, pos[0], pos[1], paint);
   }
 
+  public float getFontSize (TextPaint paint)
+  {
+    if (fontInitialize)
+      calcFontSize(paint);
+    return fontSize;
+  }
+
   public void setText (String text)
   {
     this.text = text;
-    fontInitialize = calcFontSize(new TextPaint());
+    calcFontSize(new TextPaint());
   }
 
-  protected boolean calcFontSize (TextPaint paint)
+  protected void calcFontSize (TextPaint paint)
   {
+    fontInitialize = true;
     Rect textSize = new Rect();
     paint.getTextBounds(text, 0, text.length(), textSize);
     float scaleX = (1.0f - border[0]) * getWidth() / textSize.width();
     float scaleY = (1.0f - border[1]) * getHeight() / textSize.height();
     fontSize = paint.getTextSize() * (scaleX > scaleY ? scaleY : scaleX);
-    return false;
   }
 
 
