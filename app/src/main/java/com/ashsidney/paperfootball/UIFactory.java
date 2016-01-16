@@ -1,14 +1,44 @@
 package com.ashsidney.paperfootball;
 
+import android.content.res.Resources;
+import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Trieda pre tvorbu UI vrstiev.
  */
 public class UIFactory
 {
+  /**
+   * Funkcia na nacitanie UI vrstiev.
+   */
+  public static ArrayList<Renderer.UILayer> loadUILayers (int dataID, Resources res)
+  {
+    ArrayList<Renderer.UILayer> layers = new ArrayList<>();
+
+    try
+    {
+      XMLHelper xml = new XMLHelper();
+      xml.open(dataID, res);
+
+      int initDepth = xml.parser.getDepth();
+      for (int eventType = xml.parser.next(); eventType != XmlPullParser.END_TAG || xml.parser.getDepth() > initDepth;
+          eventType = xml.parser.next())
+        if (eventType == XmlPullParser.START_TAG)
+          layers.add(createUILayer(xml));
+    }
+    catch (Exception e)
+    {
+      Log.e("PaperFootball", "UILayers load failed:" + e.getMessage());
+    }
+    return layers;
+  }
+
   /**
    * Funkcia na vytvorenie UI vrstvy z konfiguracnych udajov.
    */

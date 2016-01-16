@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -36,6 +37,7 @@ public class AnimSprite extends Sprite
       xml.loadChildNodes(this);
     }
 
+    @Override
     public boolean createChild (XMLHelper xml)
       throws IOException, XmlPullParserException
     {
@@ -68,23 +70,23 @@ public class AnimSprite extends Sprite
   }
 
   @Override
-  public void draw (Canvas canvas, float currTime)
+  public void draw (Canvas canvas, Paint paint, float currTime)
   {
     if (currTime > startTime + animTime && noRepeat)
-      super.draw(canvas, currTime);
+      super.draw(canvas, paint, currTime);
     else
     {
       int animSize = animation.get(animSequence).getBitmapSize();
       int currIdx = (int)((currTime - startTime) / animTime * (animSize + 1)) % (animSize + 1);
       if (currIdx == 0)
-        super.draw(canvas, currTime);
+        super.draw(canvas, paint, currTime);
       else
       {
         if (forward)
           --currIdx;
         else
           currIdx = animSize - currIdx;
-        draw(canvas, animation.get(animSequence).getBitmap(currIdx));
+        draw(canvas, animation.get(animSequence).getBitmap(currIdx), paint);
       }
     }
   }

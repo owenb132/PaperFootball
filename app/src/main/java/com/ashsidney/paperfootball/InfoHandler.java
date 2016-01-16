@@ -3,7 +3,7 @@ package com.ashsidney.paperfootball;
 
 import android.graphics.Canvas;
 
-public class InfoHandler implements Renderer.UILayer
+public class InfoHandler //implements Renderer.UILayer
 {
   public static void setText (String message)
   {
@@ -31,7 +31,7 @@ public class InfoHandler implements Renderer.UILayer
   
   private static PaperFootballActivity activity;
 
-  @Override
+  //@Override
   public void draw (Canvas canvas, float currTime)
   {
 

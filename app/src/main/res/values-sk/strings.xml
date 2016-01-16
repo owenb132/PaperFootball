@@ -2,6 +2,8 @@
     <string name="app_name">Papierový futbal</string>
     <string name="action_settings">Nastavenia</string>
 
+    <string name="undo">SPÄŤ</string>
+
     <string name="defender">Obranca</string>
     <string name="striker">Útočník</string>
     <string name="move">Ťah: </string>

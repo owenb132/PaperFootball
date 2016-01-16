@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <grid android:id="@+id/ovladanie">
+    <item android:id="@+id/doMenu">
+      <position orientation="both" row="0" column="0"
+          columnPosition="0.0" rowPosition="0.0">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background"/>
+          <text android:id="@string/menu"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+    <item android:id="@+id/gap">
+      <position orientation="both" row="0" column="1">
+        <empty>
+          <gap minWidth="600" height="300"/>
+        </empty>
+      </position>
+    </item>
+    <item android:id="@+id/undo">
+      <position orientation="both" row="0" column="2"
+                columnPosition="1.0" rowPosition="0.0">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background"/>
+          <text android:id="@string/undo"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+  </grid>
+</resources>

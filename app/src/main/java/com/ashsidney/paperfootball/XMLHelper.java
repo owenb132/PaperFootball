@@ -55,6 +55,11 @@ public class XMLHelper
     return value != null ? Float.valueOf(value) : -Float.MAX_VALUE;
   }
 
+  public String getAttributeString (String attrName)
+  {
+    return resources.getString(getAttributeID(attrName));
+  }
+
   public void loadChildNodes (ConfigOwner owner)
     throws IOException, XmlPullParserException
   {

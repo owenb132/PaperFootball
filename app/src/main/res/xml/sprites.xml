@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
   <sprite android:id="@+id/branka">
-    <bitmap android:id="@drawable/goal"/>
-    <width value="2.0"/>
+    <bitmap android:id="@drawable/goal" width="2.0"/>
   </sprite>
   <animSprite android:id="@+id/lopta">
-    <bitmap android:id="@drawable/ball"/>
-    <width value="0.8148733" formula="2.56 / PI"/>
+    <bitmap android:id="@drawable/ball" width="0.8148733" widthFormula="2.56 / PI"/>
     <animation time="1.0">
       <bitmap android:id="@drawable/ball_h00"/>
       <bitmap android:id="@drawable/ball_h01"/>

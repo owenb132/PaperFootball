@@ -27,22 +27,21 @@ public class Sprite implements XMLHelper.ConfigOwner
     {
       case BitmapTag:
         bitmap = loadBitmap(xml.getAttributeID("id"), xml.resources);
-        return true;
-      case WidthTag:
-        initScale(xml.getAttributeFloat("value"));
+        float width = xml.getAttributeFloat("width");
+        initScale(width > 0.0f ? width : bitmap.getWidth());
         return true;
     }
     return false;
   }
 
-  public void draw (Canvas canvas, float currTime)
+  public void draw (Canvas canvas, Paint paint, float currTime)
   {
-    draw(canvas, bitmap);
+    draw(canvas, bitmap, paint);
   }
   
-  protected void draw (Canvas canvas, Bitmap bitmap)
+  protected void draw (Canvas canvas, Bitmap bitmap, Paint paint)
   {
-    canvas.drawBitmap(bitmap, fullTransform, new Paint());
+    canvas.drawBitmap(bitmap, fullTransform, paint);
   }
 
   public int getID ()
@@ -110,5 +109,4 @@ public class Sprite implements XMLHelper.ConfigOwner
   protected Matrix fullTransform = new Matrix();
 
   public static final String BitmapTag = "bitmap";
-  public static final String WidthTag = "width";
 }

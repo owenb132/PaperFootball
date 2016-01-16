@@ -112,7 +112,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
     for (float y = (float)Math.ceil(world.top); y <= world.bottom; y += 1.0f)
       canvas.drawLine(world.left, y, world.right, y, paint);
     
-    goal.draw(canvas, currTime);
+    goal.draw(canvas, paint, currTime);
 
     GameNode animNode = null;
     float[] animPosition = null;
@@ -155,7 +155,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
     if (animPosition != null)
       ball.setPosition(animPosition);
-    ball.draw(canvas, currTime);
+    ball.draw(canvas, paint, currTime);
 
     for (UILayer uiLayer : uiLayers)
       uiLayer.draw(canvas, currTime);
@@ -224,6 +224,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
   public interface UILayer
   {
+    int getID ();
     void draw (Canvas canvas, float currTime);
     void load (XMLHelper xml) throws XmlPullParserException, Resources.NotFoundException, IOException;
   }

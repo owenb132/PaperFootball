@@ -28,6 +28,8 @@ public class SpriteFactory
       case "textSprite":
         sprite = new TextSprite();
         break;
+      case "empty":
+        sprite = new EmptySprite();
     }
 
     if (sprite != null)

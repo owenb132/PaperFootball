@@ -11,7 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.text.TextPaint;
 
-public class Menu implements Renderer.UILayer, GestureHandler.Listener
+public class Menu //implements Renderer.UILayer, GestureHandler.Listener
 {
   public Menu (XMLHelper xml) throws XmlPullParserException, IOException
   {
@@ -43,7 +43,7 @@ public class Menu implements Renderer.UILayer, GestureHandler.Listener
     canvas.restore();
   }
 
-  @Override
+  //@Override
   public boolean onGesture (GestureEvent event)
   {
     // ak doslo ku stlaceniu

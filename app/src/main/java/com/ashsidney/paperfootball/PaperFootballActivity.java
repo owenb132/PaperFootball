@@ -8,8 +8,6 @@ import android.view.SurfaceView;
 
 import java.util.ArrayList;
 
-import android.util.Log;
-
 
 public class PaperFootballActivity extends AppCompatActivity
 {
@@ -52,7 +50,8 @@ public class PaperFootballActivity extends AppCompatActivity
 
     renderer.startRendering();
 
-    loadMenus(R.id.hlavneMenu);
+    uiLayers = UIFactory.loadUILayers(R.xml.uilayers, getResources());
+    openUI(R.id.ovladanie);
   }
 
   @Override
@@ -60,7 +59,7 @@ public class PaperFootballActivity extends AppCompatActivity
   {
     super.onPause();
     if (isFinishing())
-        game.clear();
+      game.clear();
   }
 
   @Override
@@ -82,62 +81,45 @@ public class PaperFootballActivity extends AppCompatActivity
   }
 
   /// nastav menu na zobrazenie
-  public void openMenu (int menuID)
+  public void openUI (int layerID)
   {
-    // najdi menu s pozadovanym id a zobraz ho
-    for (Menu menu : menus)
-      if (menu.getMenuID() == menuID)
+    // najdi vrstvu s pozadovanym id a zobraz ju
+    for (Renderer.UILayer layer : uiLayers)
+      if (layer.getID() == layerID)
       {
-        // nastav menu na zobrazenie
-        renderer.addUI(menu);
-        // nastav menu na gesta
-        gestureHandler.add(menu);
+        // nastav vrstvu na zobrazenie
+        renderer.addUI(layer);
+        // nastav vrstvu na vstup od pouzivatela
+        gestureHandler.add((GestureHandler.Listener)layer);
         break;
       }
   }
 
-  public void closeMenu (int menuID)
+  public void closeUI (int layerID)
   {
-    // najdi menu s pozadovanym id a odstran ho
-    for (Menu menu : menus)
-      if (menu.getMenuID() == menuID)
+    // najdi vrstvu s pozadovanym id a zobraz ju
+    for (Renderer.UILayer layer : uiLayers)
+      if (layer.getID() == layerID)
       {
-        // nastav menu na zobrazenie
-        renderer.removeUI(menu);
-        // nastav menu na gesta
-        gestureHandler.remove(menu);
+        // nastav vrstvu na zobrazenie
+        renderer.removeUI(layer);
+        // nastav vrstvu na vstup od pouzivatela
+        gestureHandler.remove((GestureHandler.Listener) layer);
         break;
       }
   }
 
-  /**
-   * Nacitaj vsetky menu a zobraz menu podla jeho id
-   */
-  protected void loadMenus (int openMenu)
-  {
-    MenuActionFactory.setup(game);
-
-    try
-    {
-      Menu.loadMenus(menus, R.xml.menus, getResources());
-    }
-    catch (Exception e)
-    {
-      Log.e("PaperFootball", "Menu load failed:" + e.getMessage());
-    }
-    // nastav menu na zobrazenie
-    openMenu(openMenu);
-  }
 
   protected Renderer renderer = new Renderer();
   protected RetainedFragment retainData;
   protected Game game;
   protected ViewData viewData;
   protected GestureHandler gestureHandler;
-  protected ArrayList<Menu> menus = new ArrayList<>();
+  protected ArrayList<Renderer.UILayer> uiLayers = new ArrayList<>();
+
 
   /**
-   * Get current activity.
+   * Poskytni sucasnu aktivitu.
    */
   public static PaperFootballActivity GetActivity ()
   {

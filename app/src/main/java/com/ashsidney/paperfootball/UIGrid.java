@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.text.TextPaint;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -13,8 +14,14 @@ import java.util.HashMap;
 /**
  * Trieda pre rozmiestnenie UI elementov do mriezky.
  */
-public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
+public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHelper.ConfigOwner
 {
+  @Override
+  public int getID ()
+  {
+    return gridID;
+  }
+
   @Override
   public void load (XMLHelper xml)
       throws XmlPullParserException, Resources.NotFoundException, IOException
@@ -68,10 +75,20 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
     canvas.restore();
   }
 
+  @Override
+  public boolean onGesture (GestureEvent event)
+  {
+    for (FontGroup group : groups.values())
+      for (Item item : group.items)
+        if (item.onGesture(event))
+          return true;
+    return false;
+  }
+
 
   public class OrientedPosition implements XMLHelper.ConfigOwner
   {
-    public void load (XMLHelper xml)
+    public void load (XMLHelper xml) throws IOException, XmlPullParserException
     {
       String orientStr = xml.getAttributeValue("orientation");
       if (orientStr != null)
@@ -103,6 +120,8 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       float rowPos = xml.getAttributeFloat("rowPosition");
       if (rowPos >= 0.0f && rowPos <= 1.0f)
         rowPosition = rowPos;
+
+      xml.loadChildNodes(this);
     }
 
     @Override
@@ -142,7 +161,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
   public static final String[] StretchIDs = { "none", "horizontal", "vertical", "both" };
 
 
-  public class Item implements XMLHelper.ConfigOwner
+  public class Item implements XMLHelper.ConfigOwner, GestureHandler.Listener
   {
     public void load (XMLHelper xml) throws IOException, XmlPullParserException
     {
@@ -150,6 +169,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       fontGroupID = xml.getAttributeID("fontID");
       String visibleStr = xml.getAttributeValue("visible");
       visible = visibleStr == null || visibleStr.equalsIgnoreCase("true");
+
       xml.loadChildNodes(this);
     }
 
@@ -163,7 +183,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
           xml.parser.next();
           action = ActionFactory.create(xml);
           return action != null;*/
-        case "orientation":
+        case "position":
           OrientedPosition position = new OrientedPosition();
           position.load(xml);
           positions.add(position);
@@ -172,8 +192,16 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       return false;
     }
 
-    public void draw (Canvas canvas, TextPaint paint, float currTime, int orient)
+    @Override
+    public boolean onGesture (GestureEvent event)
     {
+      return false;
+    }
+
+    public void draw (Canvas canvas, Paint paint, float currTime, int orient)
+    {
+      OrientedPosition pos = getPosition(orient);
+      pos.visualRepresentation.draw(canvas, paint, currTime);
     }
 
     public int getItemID ()
@@ -211,7 +239,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
    */
   class FontGroup
   {
-    public void draw (Canvas canvas, TextPaint paint, float currTime, int orient)
+    public void draw (Canvas canvas, Paint paint, float currTime, int orient)
     {
       paint.setTextSize(fontSize);
       for (Item item : items)
@@ -223,10 +251,10 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
     public ArrayList<Item> items = new ArrayList<>();
   }
 
-  protected boolean calcItemPositions (Canvas canvas, TextPaint paint, int orient)
+  protected boolean calcItemPositions (Canvas canvas, Paint paint, int orient)
   {
     // urci rozsahy pozicii poloziek
-    int minMax[][] = { { Integer.MAX_VALUE, Integer.MAX_VALUE },
+    int[][] minMax = { { Integer.MAX_VALUE, Integer.MAX_VALUE },
       { Integer.MIN_VALUE, Integer.MIN_VALUE } };
     for (FontGroup group : groups.values())
       for (Item item : group.items)
@@ -239,7 +267,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
       }
 
     // vypocitaj celkove rozmery vrstvy z poloziek v kazdej bunke
-    int sizes[] = { minMax[1][0] - minMax[0][0], minMax[1][1] - minMax[0][1] };
+    int[] sizes = { minMax[1][0] - minMax[0][0], minMax[1][1] - minMax[0][1] };
     float cellMax[][] = { new float[sizes[0]], new float[sizes[1]] };
     for (FontGroup group : groups.values())
       for (Item item : group.items)
@@ -276,7 +304,7 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
               cellMax[0][colIdx + i] *= coef;
           }
         }
-        if (pos.rowCount == 1)
+        if (pos.rowCount > 1)
         {
           int rowIdx = pos.row - minMax[0][1];
           float rowSum = 0.0f;
@@ -293,37 +321,41 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
         }
       }
 
-    float layerSize[] = { 0.0f, 0.0f };
+    float[] layerSize = { 0.0f, 0.0f };
     for (int i = 0; i < 2; ++i)
       for (int idx = 0; idx < sizes[i]; ++idx)
         layerSize[i] += cellMax[i][idx];
 
-    // urci zvacsenie menu
-    float scales[] = { canvas.getWidth() / layerSize[0], canvas.getHeight() / layerSize[1] };
+    // urci zvacsenie mriezky
+    float[] scales = { canvas.getWidth() / layerSize[0], canvas.getHeight() / layerSize[1] };
     float scale = Math.min(scales[0], scales[1]);
     viewMatrix.preScale(scale, scale);
 
-    // urci pozicie stlpcov a riadkov menu
-    float positions[][] = { new float[sizes[0]], new float[sizes[1]] };
+    // urci pozicie stlpcov a riadkov mriezky
+    float[][] positions = { new float[sizes[0] + 1], new float[sizes[1] + 1] };
     for (int i = 0; i < 2; ++i)
     {
-      float prevPos = 0.0f;
-      float stepCoef = scales[i] / scale;
-      float offCoef = (stepCoef - 1.0f) * 0.5f;
+      positions[i][0] = 0.0f;
+      float scaleCoef = scales[i] / scale;
       for (int idx = 0; idx < sizes[i]; ++idx)
-      {
-        positions[i][idx] = cellMax[i][idx] * offCoef + prevPos;
-        prevPos += cellMax[i][idx] * stepCoef;
-      }
+        positions[i][idx + 1] = cellMax[i][idx] * scaleCoef + positions[i][idx];
     }
 
-    // nastav poziciu pre kazdy prvok menu
+    // nastav poziciu pre kazdy prvok
+    //final int[] stretchConsts = {OrientedPosition.StretchHorizontal, OrientedPosition.StretchVertical};
     for (FontGroup group : groups.values())
       for (Item item : group.items)
       {
         OrientedPosition pos = item.getPosition(orient);
-        float itemPos[] = { positions[0][pos.column - minMax[0][0]],
-            positions[1][pos.row - minMax[0][1]] };
+        int[] startIdx = { pos.column - minMax[0][0], pos.row - minMax[0][1] };
+        int[] endIdx = { startIdx[0] + pos.colCount, startIdx[1] + pos.rowCount };
+        float[] visSize = { pos.visualRepresentation.getWidth(), pos.visualRepresentation.getHeight() };
+        float[] itemPos = { pos.colPosition, pos.rowPosition };
+        for (int i = 0; i < 2; ++i)
+        {
+          itemPos[i] = (positions[i][endIdx[i]] - positions[i][startIdx[i]] - visSize[i]) * itemPos[i]
+              + visSize[i] * 0.5f + positions[i][startIdx[i]];
+        }
         pos.visualRepresentation.setPosition(itemPos);
       }
 
@@ -351,5 +383,5 @@ public class UIGrid implements Renderer.UILayer, XMLHelper.ConfigOwner
   /// rozlozenie poloziek ma byt inicializovane
   protected boolean initLayout = true;
   /// matica zobrazenia
-  Matrix viewMatrix;
+  Matrix viewMatrix = new Matrix();
 }

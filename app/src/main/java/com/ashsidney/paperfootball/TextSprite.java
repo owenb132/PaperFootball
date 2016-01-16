@@ -1,10 +1,11 @@
 package com.ashsidney.paperfootball;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.TextPaint;
+import android.util.Log;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -22,11 +23,7 @@ public class TextSprite extends Sprite
     switch (xml.parser.getName())
     {
       case "text":
-        int initDepth = xml.parser.getDepth();
-        for (int eventType = xml.parser.next(); eventType != XmlPullParser.END_TAG || xml.parser.getDepth() > initDepth;
-            eventType = xml.parser.next())
-          if (eventType == XmlPullParser.TEXT)
-            text += xml.parser.getText();
+        text = xml.getAttributeString("id");
         return true;
       case "border":
         border[0] = xml.getAttributeFloat("width");
@@ -37,21 +34,17 @@ public class TextSprite extends Sprite
   }
 
   @Override
-  public void draw (Canvas canvas, float currTime)
+  public void draw (Canvas canvas, Paint paint, float currTime)
   {
-    TextPaint paint = new TextPaint();
-    if (fontInitialize)
-      calcFontSize(paint);
-    paint.setTextSize(fontSize);
-    super.draw(canvas, currTime);
+    super.draw(canvas, paint, currTime);
     float pos[] = { 0.0f, 0.0f };
     fullTransform.mapPoints(pos);
     pos[0] += getWidth() * 0.5f;
-    pos[1] += (getHeight() + paint.getTextSize()) * 0.5f;
+    pos[1] += (getHeight() - paint.ascent()) * 0.5f;
     canvas.drawText(text, pos[0], pos[1], paint);
   }
 
-  public float getFontSize (TextPaint paint)
+  public float getFontSize (Paint paint)
   {
     if (fontInitialize)
       calcFontSize(paint);
@@ -61,17 +54,17 @@ public class TextSprite extends Sprite
   public void setText (String text)
   {
     this.text = text;
-    calcFontSize(new TextPaint());
+    calcFontSize(new Paint());
   }
 
-  protected void calcFontSize (TextPaint paint)
+  protected void calcFontSize (Paint paint)
   {
     fontInitialize = true;
     Rect textSize = new Rect();
     paint.getTextBounds(text, 0, text.length(), textSize);
     float scaleX = (1.0f - border[0]) * getWidth() / textSize.width();
     float scaleY = (1.0f - border[1]) * getHeight() / textSize.height();
-    fontSize = paint.getTextSize() * (scaleX > scaleY ? scaleY : scaleX);
+    fontSize = paint.getTextSize() * Math.min(scaleX, scaleY);
   }
 
 
