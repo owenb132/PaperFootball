@@ -19,8 +19,12 @@ public class GestureEvent
   {
     return transform;
   }
-  
-  
+
+  public GestureEvent clone ()
+  {
+    return new GestureEvent(eventType, transform);
+  }
+
   protected EventType eventType;
   protected Transformation transform;
 }

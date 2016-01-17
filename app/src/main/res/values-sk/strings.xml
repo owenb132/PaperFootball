@@ -4,6 +4,9 @@
 
     <string name="undo">SPÄŤ</string>
 
+    <string name="tahObranca">Ťah obranca</string>
+    <string name="tahUtocnik">Ťah útočník</string>
+
     <string name="defender">Obranca</string>
     <string name="striker">Útočník</string>
     <string name="move">Ťah: </string>
