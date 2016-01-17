@@ -14,16 +14,38 @@
     <item android:id="@+id/gap">
       <position orientation="both" row="0" column="1">
         <empty>
-          <gap minWidth="600" height="300"/>
+          <gap width="700" height="300" screenWidth="600" widthCoef="3.0"/>
         </empty>
       </position>
     </item>
     <item android:id="@+id/undo">
       <position orientation="both" row="0" column="2"
-                columnPosition="1.0" rowPosition="0.0">
+          columnPosition="1.0" rowPosition="0.0">
         <textSprite>
           <bitmap android:id="@drawable/menu_background"/>
           <text android:id="@string/undo"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+  </grid>
+  <grid android:id="@+id/tahOznam">
+    <item android:id="@+id/tahObranca" visible="false">
+      <position orientation="both" row="0" column="0"
+          columnPosition="0.5" rowPosition="0.3">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background" width="350"/>
+          <text android:id="@string/tahObranca"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+    <item android:id="@+id/tahUtocnik" visible="false">
+      <position orientation="both" row="0" column="0"
+          columnPosition="0.5" rowPosition="0.3">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background" width="350"/>
+          <text android:id="@string/tahUtocnik"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
       </position>

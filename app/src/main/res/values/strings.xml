@@ -5,6 +5,9 @@
     <string name="menu">MENU</string>
     <string name="undo">UNDO</string>
 
+    <string name="tahObranca">Defender move</string>
+    <string name="tahUtocnik">Striker move</string>
+
     <string name="defender">Defender</string>
     <string name="striker">Striker</string>
     <string name="move">Move: </string>

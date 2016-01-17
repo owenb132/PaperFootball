@@ -27,6 +27,9 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       throws XmlPullParserException, Resources.NotFoundException, IOException
   {
     gridID = xml.getAttributeID("id");
+    float scale = xml.getAttributeFloat("maxScale");
+    if (scale > 0.0f)
+      maxScale = scale;
     xml.loadChildNodes(this);
   }
 
@@ -273,6 +276,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       for (Item item : group.items)
       {
         OrientedPosition pos = item.getPosition(orient);
+        pos.visualRepresentation.initDraw(canvas);
         if (pos.colCount == 1)
         {
           int colIdx = pos.column - minMax[0][0];
@@ -329,6 +333,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     // urci zvacsenie mriezky
     float[] scales = { canvas.getWidth() / layerSize[0], canvas.getHeight() / layerSize[1] };
     float scale = Math.min(scales[0], scales[1]);
+    scale = Math.min(scale, maxScale);
     viewMatrix.preScale(scale, scale);
 
     // urci pozicie stlpcov a riadkov mriezky
@@ -378,8 +383,10 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
   /// identifikacia mriezky pouzivatelskeho rozhrania
   protected int gridID = 0;
-  /// zoznam poloziek v mriezke roztiredeny podla skupin fontov
+  /// zoznam poloziek v mriezke roztriedeny podla skupin fontov
   protected HashMap<Integer, FontGroup> groups = new HashMap<>();
+  /// maximalna hodnota skalovania vrstvy
+  float maxScale = 1.0f;
   /// rozlozenie poloziek ma byt inicializovane
   protected boolean initLayout = true;
   /// matica zobrazenia

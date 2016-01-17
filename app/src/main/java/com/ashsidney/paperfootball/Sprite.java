@@ -34,6 +34,9 @@ public class Sprite implements XMLHelper.ConfigOwner
     return false;
   }
 
+  public void initDraw (Canvas canvas)
+  {}
+
   public void draw (Canvas canvas, Paint paint, float currTime)
   {
     draw(canvas, bitmap, paint);
