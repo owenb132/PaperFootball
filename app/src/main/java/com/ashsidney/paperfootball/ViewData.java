@@ -103,8 +103,7 @@ public class ViewData implements GestureHandler.Listener
     
     if (evType == GestureEvent.EventType.Touch)
     {
-      Matrix invMat = currentTransform.getInvertMatrix();
-      invMat.mapPoints(event.getTransformation().getTranslation());
+      event.getTransformation().addToTranslation(currentTransform.getInvertMatrix());
       return false;
     }
     renderer.doRedraw();

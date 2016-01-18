@@ -68,6 +68,11 @@ public class Transformation
     thisMat.postConcat(mat);
     set(thisMat);
   }
+
+  public void addToTranslation (Matrix mat)
+  {
+    mat.mapPoints(translation);
+  }
   
   public Matrix getMatrix ()
   {

@@ -61,11 +61,11 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   public void draw (Canvas canvas, float currTime)
   {
     TextPaint paint = new TextPaint();
-    int orient = canvas.getWidth() > canvas.getHeight()
+    orientation = canvas.getWidth() > canvas.getHeight()
       ? OrientedPosition.LandscapeOrientation : OrientedPosition.PortraitOrientation;
 
     if (initLayout)
-      initLayout = calcItemPositions(canvas, paint, orient);
+      initLayout = calcItemPositions(canvas, paint);
 
     canvas.save();
     canvas.setMatrix(viewMatrix);
@@ -73,7 +73,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     paint.setTextAlign(TextPaint.Align.CENTER);
 
     for (int i = 0; i < groups.size(); ++i)
-      groups.get(i).draw(canvas, paint, currTime, orient);
+      groups.get(i).draw(canvas, paint, currTime, orientation);
 
     canvas.restore();
   }
@@ -81,10 +81,15 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   @Override
   public boolean onGesture (GestureEvent event)
   {
-    for (FontGroup group : groups.values())
-      for (Item item : group.items)
-        if (item.onGesture(event))
-          return true;
+    if (event.getType() == GestureEvent.EventType.Touch)
+    {
+      GestureEvent gridEvent = event.clone();
+      gridEvent.getTransformation().addToTranslation(invMatrix);
+      for (FontGroup group : groups.values())
+        for (Item item : group.items)
+          if (item.onGesture(gridEvent, orientation))
+            return true;
+    }
     return false;
   }
 
@@ -164,7 +169,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   public static final String[] StretchIDs = { "none", "horizontal", "vertical", "both" };
 
 
-  public class Item implements XMLHelper.ConfigOwner, GestureHandler.Listener
+  public class Item implements XMLHelper.ConfigOwner
   {
     public void load (XMLHelper xml) throws IOException, XmlPullParserException
     {
@@ -195,9 +200,16 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       return false;
     }
 
-    @Override
-    public boolean onGesture (GestureEvent event)
+    public boolean onGesture (GestureEvent event, int orient)
     {
+      OrientedPosition pos = getPosition(orient);
+      float[] evPos = event.getTransformation().getTranslation();
+      float[] minPos = pos.visualRepresentation.getPosition();
+      float[] maxPos = { minPos[0] + pos.visualRepresentation.getWidth(),
+        minPos[1] + pos.visualRepresentation.getHeight() };
+      if (evPos[0] >= minPos[0] && evPos[0] < maxPos[0]
+          && evPos[1] >= minPos[1] && evPos[1] < maxPos[1])
+        return true;
       return false;
     }
 
@@ -254,7 +266,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     public ArrayList<Item> items = new ArrayList<>();
   }
 
-  protected boolean calcItemPositions (Canvas canvas, Paint paint, int orient)
+  protected boolean calcItemPositions (Canvas canvas, Paint paint)
   {
     // urci rozsahy pozicii poloziek
     int[][] minMax = { { Integer.MAX_VALUE, Integer.MAX_VALUE },
@@ -262,7 +274,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     for (FontGroup group : groups.values())
       for (Item item : group.items)
       {
-        OrientedPosition pos = item.getPosition(orient);
+        OrientedPosition pos = item.getPosition(orientation);
         minMax[0][0] = Math.min(minMax[0][0], pos.column);
         minMax[0][1] = Math.min(minMax[0][1], pos.row);
         minMax[1][0] = Math.max(minMax[1][0], pos.column + pos.colCount);
@@ -275,7 +287,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     for (FontGroup group : groups.values())
       for (Item item : group.items)
       {
-        OrientedPosition pos = item.getPosition(orient);
+        OrientedPosition pos = item.getPosition(orientation);
         pos.visualRepresentation.initDraw(canvas);
         if (pos.colCount == 1)
         {
@@ -292,7 +304,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     for (FontGroup group : groups.values())
       for (Item item : group.items)
       {
-        OrientedPosition pos = item.getPosition(orient);
+        OrientedPosition pos = item.getPosition(orientation);
         if (pos.colCount > 1)
         {
           int colIdx = pos.column - minMax[0][0];
@@ -334,7 +346,10 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     float[] scales = { canvas.getWidth() / layerSize[0], canvas.getHeight() / layerSize[1] };
     float scale = Math.min(scales[0], scales[1]);
     scale = Math.min(scale, maxScale);
+    viewMatrix = new Matrix();
     viewMatrix.preScale(scale, scale);
+    invMatrix = new Matrix();
+    viewMatrix.invert(viewMatrix);
 
     // urci pozicie stlpcov a riadkov mriezky
     float[][] positions = { new float[sizes[0] + 1], new float[sizes[1] + 1] };
@@ -351,7 +366,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     for (FontGroup group : groups.values())
       for (Item item : group.items)
       {
-        OrientedPosition pos = item.getPosition(orient);
+        OrientedPosition pos = item.getPosition(orientation);
         int[] startIdx = { pos.column - minMax[0][0], pos.row - minMax[0][1] };
         int[] endIdx = { startIdx[0] + pos.colCount, startIdx[1] + pos.rowCount };
         float[] visSize = { pos.visualRepresentation.getWidth(), pos.visualRepresentation.getHeight() };
@@ -371,7 +386,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       float minFontSize = Float.MAX_VALUE;
       for (Item item : group.items)
       {
-        OrientedPosition pos = item.getPosition(orient);
+        OrientedPosition pos = item.getPosition(orientation);
         if (pos.visualRepresentation instanceof TextSprite)
           minFontSize = Math.min(minFontSize, ((TextSprite)pos.visualRepresentation).getFontSize(paint));
       }
@@ -390,5 +405,9 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   /// rozlozenie poloziek ma byt inicializovane
   protected boolean initLayout = true;
   /// matica zobrazenia
-  Matrix viewMatrix = new Matrix();
+  Matrix viewMatrix;
+  /// inverzna matica zobrazenia pre preklad suradnic ovladania
+  Matrix invMatrix;
+  /// aktualna orientacia displeja
+  int orientation;
 }

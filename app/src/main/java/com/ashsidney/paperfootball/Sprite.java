@@ -57,7 +57,14 @@ public class Sprite implements XMLHelper.ConfigOwner
     transform = trans;
     calcFullTransform();
   }
-  
+
+  public float[] getPosition ()
+  {
+    float[] pos = { 0.0f, 0.0f };
+    fullTransform.mapPoints(pos);
+    return pos;
+  }
+
   public void setPosition (float[] position)
   {
     Matrix trans = new Matrix();
