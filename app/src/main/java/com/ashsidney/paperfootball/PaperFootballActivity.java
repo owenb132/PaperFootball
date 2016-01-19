@@ -80,6 +80,26 @@ public class PaperFootballActivity extends AppCompatActivity
     return super.onTouchEvent(event);
   }
 
+  /**
+   * Spristupni objekt renderera
+   *
+   * @return renderer
+   */
+  public Renderer getRenderer ()
+  {
+    return renderer;
+  }
+
+  /**
+   * Spristupni objekt hry
+   *
+   * @return objekt hry
+   */
+  public Game getGame ()
+  {
+    return game;
+  }
+
   /// nastav menu na zobrazenie
   public void openUI (int layerID)
   {

@@ -41,7 +41,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     {
       case "item":
         Item item = new Item();
-        item.load(xml);
+        item.load(xml, this);
         int groupID = item.getFontGroupID();
         if (groups.containsKey(groupID))
           groups.get(groupID).items.add(item);
@@ -87,7 +87,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       gridEvent.getTransformation().addToTranslation(invMatrix);
       for (FontGroup group : groups.values())
         for (Item item : group.items)
-          if (item.onGesture(gridEvent, orientation))
+          if (item.onGesture(gridEvent))
             return true;
     }
     return false;
@@ -171,9 +171,10 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
   public class Item implements XMLHelper.ConfigOwner
   {
-    public void load (XMLHelper xml) throws IOException, XmlPullParserException
+    public void load (XMLHelper xml, UIGrid owner) throws IOException, XmlPullParserException
     {
       itemID = xml.getAttributeID("id");
+      this.owner = owner;
       fontGroupID = xml.getAttributeID("fontID");
       String visibleStr = xml.getAttributeValue("visible");
       visible = visibleStr == null || visibleStr.equalsIgnoreCase("true");
@@ -187,10 +188,10 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     {
       switch (xml.parser.getName())
       {
-        /*case "action":
+        case "action":
           xml.parser.next();
-          action = ActionFactory.create(xml);
-          return action != null;*/
+          action = UIFactory.createAction(xml, owner);
+          return action != null;
         case "position":
           OrientedPosition position = new OrientedPosition();
           position.load(xml);
@@ -200,16 +201,19 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       return false;
     }
 
-    public boolean onGesture (GestureEvent event, int orient)
+    public boolean onGesture (GestureEvent event)
     {
-      OrientedPosition pos = getPosition(orient);
+      OrientedPosition pos = getPosition(owner.orientation);
       float[] evPos = event.getTransformation().getTranslation();
       float[] minPos = pos.visualRepresentation.getPosition();
       float[] maxPos = { minPos[0] + pos.visualRepresentation.getWidth(),
         minPos[1] + pos.visualRepresentation.getHeight() };
       if (evPos[0] >= minPos[0] && evPos[0] < maxPos[0]
           && evPos[1] >= minPos[1] && evPos[1] < maxPos[1])
+      {
+        action.execute();
         return true;
+      }
       return false;
     }
 
@@ -239,8 +243,10 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
     /// identifikator polozky menu
     protected int itemID;
+    /// vlastnik polozky menu
+    protected UIGrid owner;
     /// akcia vykonana, ked je polozka UI aktivovana
-    //protected Action action;
+    protected UIFactory.UIAction action;
     /// pozicie polozky v roznych orientaciach
     protected ArrayList<OrientedPosition> positions = new ArrayList<>();
     /// cislo skupiny velkosti fontu

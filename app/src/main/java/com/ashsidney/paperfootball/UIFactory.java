@@ -15,6 +15,23 @@ import java.util.ArrayList;
 public class UIFactory
 {
   /**
+   * Interfejs pre akcie vyvolane pouzivatelom.
+   */
+  public interface UIAction
+  {
+    /**
+     * Metoda vykonavajuca akciu. Kazda trieda implementujuca tento interfejs musi implementovat.
+     */
+    boolean execute ();
+    /**
+     * Metoda pre konfiguraciu akcie.
+     *
+     * \param xml konfiguracne udaje
+     */
+    void load (XMLHelper xml, Renderer.UILayer layer);
+  }
+
+  /**
    * Funkcia na nacitanie UI vrstiev.
    */
   public static ArrayList<Renderer.UILayer> loadUILayers (int dataID, Resources res)
@@ -30,7 +47,7 @@ public class UIFactory
       for (int eventType = xml.parser.next(); eventType != XmlPullParser.END_TAG || xml.parser.getDepth() > initDepth;
           eventType = xml.parser.next())
         if (eventType == XmlPullParser.START_TAG)
-          layers.add(createUILayer(xml));
+          layers.add(createLayer(xml));
     }
     catch (Exception e)
     {
@@ -42,7 +59,7 @@ public class UIFactory
   /**
    * Funkcia na vytvorenie UI vrstvy z konfiguracnych udajov.
    */
-  public static Renderer.UILayer createUILayer (XMLHelper xml)
+  public static Renderer.UILayer createLayer (XMLHelper xml)
       throws IOException, XmlPullParserException
   {
     Renderer.UILayer layer = null;
@@ -63,21 +80,21 @@ public class UIFactory
   /**
    * Funkcia na vytvorenie UI akcie z konfiguracnych udajov.
    */
-  /*public static Renderer.UILayer createAction (XMLHelper xml)
-      throws IOException, XmlPullParserException
+  public static UIAction createAction (XMLHelper xml, Renderer.UILayer layer)
+    throws IOException, XmlPullParserException
   {
-    Renderer.UILayer layer = null;
+    UIAction action = null;
 
     switch (xml.parser.getName())
     {
       case "grid":
         layer = new UIGrid();
-        break;
+        break;*/
     }
 
-    if (layer != null)
-      layer.load(xml);
+    if (action != null)
+      action.load(xml, layer);
 
-    return layer;
-  }*/
+    return action;
+  }
 }
