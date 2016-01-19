@@ -89,7 +89,7 @@ public class UIFactory
     {
       case "grid":
         layer = new UIGrid();
-        break;*/
+        break;
     }
 
     if (action != null)
