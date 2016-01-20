@@ -1,7 +1,5 @@
 package com.ashsidney.paperfootball;
 
-import android.content.Context;
-import android.widget.Toast;
 
 public class Game implements GestureHandler.Listener
 {
@@ -9,20 +7,7 @@ public class Game implements GestureHandler.Listener
   {
     clear();
   }
-  
-  public void setContext (Context context)
-  {
-    this.context = context;
-    
-    // napln mena hracov
-    if (playerNames == null)
-    {
-      playerNames = new String[2];
-      playerNames[0] = (String)context.getResources().getText(R.string.defender);
-      playerNames[1] = (String)context.getResources().getText(R.string.striker);
-    }
-  }
-  
+
   public void setRenderer (Renderer rend)
   {
     if (renderer != rend)
@@ -104,10 +89,9 @@ public class Game implements GestureHandler.Listener
   
   protected void moveReady ()
   {
-    //InfoHandler.setTitle((String) context.getResources().getText(R.string.move) + playerNames[currPlayer - 1]);
+    InfoHandler.showInfo(currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 4.0f);
   }
   
-  protected Context context;
   protected Renderer renderer;
   
   protected GameNode goalNode = null;
@@ -116,5 +100,4 @@ public class Game implements GestureHandler.Listener
   protected int playerMoves;
   
   public static final float[][] directions = { {1.0f, 0.0f},  {0.0f, -1.0f},  {-1.0f, 0.0f},  {0.0f, 1.0f} };
-  protected static String[] playerNames = null;
 }

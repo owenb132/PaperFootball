@@ -33,7 +33,6 @@ public class PaperFootballActivity extends AppCompatActivity
     game = retainData.getGame();
     viewData = retainData.getViewData();
 
-    game.setContext(this);
     game.setRenderer(renderer);
 
     renderer.setView(viewData);
