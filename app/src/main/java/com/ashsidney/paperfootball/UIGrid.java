@@ -22,6 +22,15 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     return gridID;
   }
 
+  /**
+   * Vrat zoznam poloziek
+   * @return zoznam poloziek mriezky
+   */
+  public ArrayList<UIGrid.Item> getItems ()
+  {
+    return items;
+  }
+
   @Override
   public void load (XMLHelper xml)
       throws XmlPullParserException, Resources.NotFoundException, IOException
@@ -42,6 +51,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       case "item":
         Item item = new Item();
         item.load(xml, this);
+        items.add(item);
         int groupID = item.getFontGroupID();
         if (groups.containsKey(groupID))
           groups.get(groupID).items.add(item);
@@ -219,8 +229,11 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
     public void draw (Canvas canvas, Paint paint, float currTime, int orient)
     {
-      OrientedPosition pos = getPosition(orient);
-      pos.visualRepresentation.draw(canvas, paint, currTime);
+      if (visible)
+      {
+        OrientedPosition pos = getPosition(orient);
+        pos.visualRepresentation.draw(canvas, paint, currTime);
+      }
     }
 
     public int getItemID ()
@@ -231,6 +244,11 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     public int getFontGroupID ()
     {
       return fontGroupID;
+    }
+
+    public void setVisible (boolean vis)
+    {
+      visible = vis;
     }
 
     protected OrientedPosition getPosition (int orient)
@@ -355,7 +373,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     viewMatrix = new Matrix();
     viewMatrix.preScale(scale, scale);
     invMatrix = new Matrix();
-    viewMatrix.invert(viewMatrix);
+    viewMatrix.invert(invMatrix);
 
     // urci pozicie stlpcov a riadkov mriezky
     float[][] positions = { new float[sizes[0] + 1], new float[sizes[1] + 1] };
@@ -404,6 +422,8 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
   /// identifikacia mriezky pouzivatelskeho rozhrania
   protected int gridID = 0;
+  /// zoznam poloziek mriezky
+  protected ArrayList<Item> items = new ArrayList<>();
   /// zoznam poloziek v mriezke roztriedeny podla skupin fontov
   protected HashMap<Integer, FontGroup> groups = new HashMap<>();
   /// maximalna hodnota skalovania vrstvy

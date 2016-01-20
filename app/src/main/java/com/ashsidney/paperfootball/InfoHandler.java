@@ -1,39 +1,72 @@
 package com.ashsidney.paperfootball;
 
 
-import android.graphics.Canvas;
-
-public class InfoHandler //implements Renderer.UILayer
+public class InfoHandler extends Thread
 {
-  public static void setText (String message)
+  /**
+   * Funkcia na zobrazenie spravy na pozadovany cas
+   * @param messageID
+   * @param timeout
+   */
+  public static void showInfo (int messageID, float timeout)
   {
-    //PaperFootballActivity.GetActivity().runOnUiThread(new InfoHandler(message));
-  }
-  
-  public static void restore ()
-  {
-    //setTitle((String)activity.getResources().getString(R.string.app_name));
-  }
-  
-  public InfoHandler (String msg)
-  {
-    message = msg;
+    // zhasni aktualny oznam
+    if (currInfo != null)
+      currInfo.close();
+    // vytvor novy oznam
+    currInfo = new InfoHandler(messageID, timeout);
+    // spusti oznam
+    currInfo.start();
   }
 
-  /*@Override
-  public void run()
+  /**
+   * Konstruktor info objektu
+   * @param messageID identifikator polozky so spravou
+   * @param timeout casovy interval zobrazenia spravy
+   */
+  protected InfoHandler (int messageID, float timeout)
   {
-    activity.getSupportActionBar().setTitle(message);
+    this.messageID = messageID;
+    this.timeout = timeout;
   }
-  */
-  
-  private String message;
-  
-  private static PaperFootballActivity activity;
 
-  //@Override
-  public void draw (Canvas canvas, float currTime)
+  /**
+   * Metoda pre cinnost v samostatnom vlakne
+   */
+  @Override
+  public void run ()
   {
-
+    // prejdi vsetky polozky v mriezke a nastav viditelnost vybranej sprave
+    PaperFootballActivity act = PaperFootballActivity.GetActivity();
+    UIGrid grid = (UIGrid)act.getUILayer(infoGridID);
+    if (grid != null)
+      for (UIGrid.Item item : grid.getItems())
+        item.setVisible(item.getItemID() == messageID);
+    // zobraz oznam
+    opened = act.openUI(infoGridID);
+    // nechaj ho svietit po zvoleny cas
+    try
+    {
+      sleep((long)(1000 * timeout));
+    }
+    catch (Exception e) {}
+    // zavri oznam
+    close();
   }
+
+  public synchronized void close()
+  {
+    // zavri oznam
+    if (opened)
+      PaperFootballActivity.GetActivity().closeUI(infoGridID);
+    opened = false;
+  }
+
+  protected int messageID;
+  protected float timeout;
+  protected boolean opened = false;
+
+  protected static InfoHandler currInfo = null;
+
+  protected static int infoGridID = R.id.infoLayer;
 }

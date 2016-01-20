@@ -226,6 +226,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   {
     int getID ();
     void draw (Canvas canvas, float currTime);
+    //void close ();
     void load (XMLHelper xml) throws XmlPullParserException, Resources.NotFoundException, IOException;
   }
 

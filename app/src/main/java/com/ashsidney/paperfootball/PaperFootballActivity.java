@@ -101,7 +101,7 @@ public class PaperFootballActivity extends AppCompatActivity
   }
 
   /// nastav menu na zobrazenie
-  public void openUI (int layerID)
+  public boolean openUI (int layerID)
   {
     // najdi vrstvu s pozadovanym id a zobraz ju
     for (Renderer.UILayer layer : uiLayers)
@@ -111,8 +111,9 @@ public class PaperFootballActivity extends AppCompatActivity
         renderer.addUI(layer);
         // nastav vrstvu na vstup od pouzivatela
         gestureHandler.add((GestureHandler.Listener)layer);
-        break;
+        return true;
       }
+    return false;
   }
 
   public void closeUI (int layerID)
@@ -127,6 +128,20 @@ public class PaperFootballActivity extends AppCompatActivity
         gestureHandler.remove((GestureHandler.Listener) layer);
         break;
       }
+  }
+
+  /**
+   * Pristup k UI vrstve.
+   *
+   * @param layerID identifikacia vrstvy
+   * @return pozadovana vrstva
+   */
+  public Renderer.UILayer getUILayer (int layerID)
+  {
+    for (Renderer.UILayer layer : uiLayers)
+      if (layer.getID() == layerID)
+        return layer;
+    return null;
   }
 
 

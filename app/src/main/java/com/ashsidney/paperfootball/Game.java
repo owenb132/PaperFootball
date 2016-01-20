@@ -81,10 +81,7 @@ public class Game implements GestureHandler.Listener
         }
       }
       if (ballNode == goalNode || !ballNode.isAbleToPlay(playerMoves == 1))
-      {
-        Toast.makeText(context, "Game Over", Toast.LENGTH_SHORT).show();
-        InfoHandler.restore();
-      }
+        InfoHandler.showInfo(ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 10.0f);
       else
         moveReady();
         

@@ -7,6 +7,8 @@
 
     <string name="tahObranca">Defender move</string>
     <string name="tahUtocnik">Striker move</string>
+    <string name="vyhraObranca">Defender won</string>
+    <string name="vyhraUtocnik">Striker won</string>
 
     <string name="defender">Defender</string>
     <string name="striker">Striker</string>
