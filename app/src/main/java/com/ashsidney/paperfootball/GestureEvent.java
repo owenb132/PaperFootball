@@ -22,7 +22,7 @@ public class GestureEvent
 
   public GestureEvent clone ()
   {
-    return new GestureEvent(eventType, transform);
+    return new GestureEvent(eventType, new Transformation(transform));
   }
 
   protected EventType eventType;

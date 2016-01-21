@@ -18,19 +18,19 @@ public class GestureHandler
     return false;
   }
   
-  public void add (Listener listener)
+  public synchronized void add (Listener listener)
   {
     assert listener != null;
     listeners.add(0, listener);
   }
 
-  public void remove (Listener listener)
+  public synchronized void remove (Listener listener)
   {
     assert listener != null;
     listeners.remove(listener);
   }
 
-  protected void sendGesture (GestureEvent event)
+  protected synchronized void sendGesture (GestureEvent event)
   {
     for (Listener lst : listeners)
       lst.onGesture(event);

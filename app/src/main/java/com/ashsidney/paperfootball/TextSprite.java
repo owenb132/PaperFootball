@@ -59,7 +59,7 @@ public class TextSprite extends Sprite
 
   protected void calcFontSize (Paint paint)
   {
-    fontInitialize = true;
+    fontInitialize = false;
     Rect textSize = new Rect();
     paint.getTextBounds(text, 0, text.length(), textSize);
     float scaleX = (1.0f - border[0]) * getWidth() / textSize.width();

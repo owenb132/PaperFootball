@@ -36,9 +36,17 @@ public class EmptySprite extends Sprite
   public void initDraw (Canvas canvas)
   {
     if (screenWidth > 0.0f && widthCoef > 0.0f)
-      width = widthCoef * (canvas.getWidth() - screenWidth) + baseWidth;
+    {
+      float param = canvas.getWidth() - screenWidth;
+      if (param > 0.0f)
+        width = widthCoef * param + baseWidth;
+    }
     if (screenHeight > 0.0f && heightCoef > 0.0f)
-      height = heightCoef * (canvas.getHeight() - screenHeight) + baseHeight;
+    {
+      float param = canvas.getHeight() - screenHeight;
+      if (param > 0.0f)
+        height = heightCoef * param + baseHeight;
+    }
   }
 
   @Override

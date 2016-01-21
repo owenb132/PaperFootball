@@ -67,15 +67,13 @@ public class Game implements GestureHandler.Listener
       }
       if (ballNode == goalNode || !ballNode.isAbleToPlay(playerMoves == 1))
         InfoHandler.showInfo(ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 10.0f);
-      else
-        moveReady();
-        
+
       return true;
     }
     return false;
   }
 
-  protected void clear ()
+  public void clear ()
   {
     if (goalNode != null)
       goalNode.clear();
@@ -87,7 +85,7 @@ public class Game implements GestureHandler.Listener
     ballNode.setPlayer(currPlayer, null);
   }
   
-  protected void moveReady ()
+  public void ready ()
   {
     InfoHandler.showInfo(currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 4.0f);
   }

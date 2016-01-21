@@ -221,7 +221,8 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       if (evPos[0] >= minPos[0] && evPos[0] < maxPos[0]
           && evPos[1] >= minPos[1] && evPos[1] < maxPos[1])
       {
-        action.execute();
+        if (action != null)
+          action.execute();
         return true;
       }
       return false;
@@ -286,7 +287,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     }
 
     public int fontGroupID = 0;
-    public float fontSize;
+    public float fontSize = 32.0f;
     public ArrayList<Item> items = new ArrayList<>();
   }
 

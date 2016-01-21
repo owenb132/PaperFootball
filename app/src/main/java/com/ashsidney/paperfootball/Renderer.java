@@ -219,7 +219,11 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   public synchronized void removeAnimation ()
   {
     if (!animations.isEmpty())
+    {
       animations.remove(0);
+      if (animations.isEmpty())
+        game.ready();
+    }
   }
 
   public interface UILayer
@@ -233,11 +237,13 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   public synchronized void addUI (UILayer layer)
   {
     uiLayers.add(layer);
+    doRedraw();
   }
 
   public synchronized void removeUI (UILayer layer)
   {
     uiLayers.remove(layer);
+    doRedraw();
   }
 
   @Override
