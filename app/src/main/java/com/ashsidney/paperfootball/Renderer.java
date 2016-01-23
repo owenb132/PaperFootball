@@ -157,8 +157,11 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
       ball.setPosition(animPosition);
     ball.draw(canvas, paint, currTime);
 
-    for (UILayer uiLayer : uiLayers)
-      uiLayer.draw(canvas, currTime);
+    synchronized (this)
+    {
+      for (UILayer uiLayer : uiLayers)
+        uiLayer.draw(canvas, currTime);
+    }
 
     holder.unlockCanvasAndPost(canvas);
   }

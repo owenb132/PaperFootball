@@ -11,7 +11,7 @@ public class GameNode
     position[0] = 0.0f;
     position[1] = 0.0f;
   }
-  
+
   public GameNode (GameNode node, int dir)
   {
     for (int i = 0; i < 2; ++i)
@@ -19,14 +19,14 @@ public class GameNode
     // uloz suseda
     addNeighbor(node, dir);
     // index od suseda naproti
-    int oDir = (dir + 2) % 4;
+    int oDir = invertDir(dir);
     // najdi ostatnych susedov
     for (int i = 1; i < 4; i += 2)
     {
       GameNode nNode = node.findNeighbor(dir, i);
       if (nNode != null)
       {
-        int nDir = (dir + i + 2) % 4;
+        int nDir = invertDir(dir + i);
         addNeighbor(nNode, nDir);
         if (neighbors[oDir] == null)
         {
@@ -37,7 +37,7 @@ public class GameNode
       }
     }
   }
-  
+
   public void clear ()
   {
     if (neighbors != null)
@@ -51,7 +51,7 @@ public class GameNode
       previous = null;
     }
   }
-  
+
   public float[] getPosition ()
   {
     return position;
@@ -71,12 +71,12 @@ public class GameNode
   {
     this.next = next;
   }
-  
+
   public GameNode getPrevious ()
   {
     return previous;
   }
-  
+
   public boolean isStart ()
   {
     return getPlayer() == 1 && getPrevious() == null;
@@ -115,7 +115,7 @@ public class GameNode
         recalc = false;
         Iterator<GameNode> it = nodes.iterator();
         while (it.hasNext())
-          if(it.next().calcDistance())
+          if (it.next().calcDistance())
           {
             it.remove();
             recalc = true;
@@ -132,10 +132,20 @@ public class GameNode
           return true;
     return false;
   }
-  
+
+  protected int rotateDir (int dir, int rot)
+  {
+    return (dir + rot) % 4;
+  }
+
+  protected int invertDir (int dir)
+  {
+    return rotateDir(dir, 2);
+  }
+
   protected void addNeighbor (GameNode node, int dir)
   {
-    dir = (dir + 2) % 4;
+    dir = invertDir(dir);
     if (neighbors[dir] != node)
     {
       neighbors[dir] = node;
@@ -145,7 +155,7 @@ public class GameNode
   
   protected GameNode findNeighbor (int dir, int rot)
   {
-    int i = (dir + rot) % 4;
+    int i = rotateDir(dir, rot);
     if (neighbors[i] != null)
       return neighbors[i].getNeighbor(dir);
     return null;
@@ -163,7 +173,7 @@ public class GameNode
     new GameNode(this, dir);
     for (int i = 1; i < 4; i += 2)
     {
-      int nDir = (dir + i) % 4;
+      int nDir = rotateDir(dir, i);
       if (neighbors[nDir] != null)
         neighbors[nDir].completeNeighbors(dir, nDir);
     }

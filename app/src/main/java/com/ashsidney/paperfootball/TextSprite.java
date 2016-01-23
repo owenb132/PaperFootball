@@ -3,8 +3,6 @@ package com.ashsidney.paperfootball;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.text.TextPaint;
-import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
 

@@ -65,9 +65,6 @@ public class Game implements GestureHandler.Listener
           ballNode = newNode;
         }
       }
-      if (ballNode == goalNode || !ballNode.isAbleToPlay(playerMoves == 1))
-        InfoHandler.showInfo(ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 10.0f);
-
       return true;
     }
     return false;
@@ -87,7 +84,12 @@ public class Game implements GestureHandler.Listener
   
   public void ready ()
   {
-    InfoHandler.showInfo(currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 4.0f);
+    if (ballNode == goalNode && ballNode.getPrevious() != null
+        || !ballNode.isAbleToPlay(playerMoves == 1))
+      InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 10.0f);
+    else
+      if (currPlayer == playerMoves)
+        InfoHandler.showInfo(R.id.stavOznam, currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 4.0f);
   }
   
   protected Renderer renderer;

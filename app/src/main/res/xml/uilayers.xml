@@ -30,44 +30,47 @@
     </item>
   </grid>
 
-  <grid android:id="@+id/infoLayer">
-    <item android:id="@+id/tahObranca" visible="false">
+  <grid android:id="@+id/stavOznam">
+    <item android:id="@+id/tahObranca" fontID="0" visible="false">
       <position orientation="both" row="0" column="0"
           columnPosition="0.5" rowPosition="0.3">
         <textSprite>
           <bitmap android:id="@drawable/menu_background" width="350"/>
           <text android:id="@string/tahObranca"/>
-          <border width="0.5" height="0.5"/>
+          <border width="0.2" height="0.5"/>
         </textSprite>
       </position>
     </item>
-    <item android:id="@+id/tahUtocnik" visible="false">
+    <item android:id="@+id/tahUtocnik" fontID="0" visible="false">
       <position orientation="both" row="0" column="0"
           columnPosition="0.5" rowPosition="0.3">
         <textSprite>
           <bitmap android:id="@drawable/menu_background" width="350"/>
           <text android:id="@string/tahUtocnik"/>
-          <border width="0.5" height="0.5"/>
+          <border width="0.2" height="0.5"/>
         </textSprite>
       </position>
     </item>
-    <item android:id="@+id/vyhraObranca" visible="false">
+  </grid>
+
+  <grid android:id="@+id/vysledokOznam">
+    <item android:id="@+id/vyhraObranca" fontID="1" visible="false">
       <position orientation="both" row="0" column="0"
                 columnPosition="0.5" rowPosition="0.3">
         <textSprite>
           <bitmap android:id="@drawable/menu_background" width="700"/>
           <text android:id="@string/vyhraObranca"/>
-          <border width="0.5" height="0.5"/>
+          <border width="0.2" height="0.5"/>
         </textSprite>
       </position>
     </item>
-    <item android:id="@+id/vyhraUtocnik" visible="false">
+    <item android:id="@+id/vyhraUtocnik" fontID="1" visible="false">
       <position orientation="both" row="0" column="0"
                 columnPosition="0.5" rowPosition="0.3">
         <textSprite>
           <bitmap android:id="@drawable/menu_background" width="700"/>
           <text android:id="@string/vyhraUtocnik"/>
-          <border width="0.5" height="0.5"/>
+          <border width="0.2" height="0.5"/>
         </textSprite>
       </position>
     </item>

@@ -82,8 +82,8 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
 
     paint.setTextAlign(TextPaint.Align.CENTER);
 
-    for (int i = 0; i < groups.size(); ++i)
-      groups.get(i).draw(canvas, paint, currTime, orientation);
+    for (FontGroup group : groups.values())
+      group.draw(canvas, paint, currTime, orientation);
 
     canvas.restore();
   }
@@ -91,7 +91,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   @Override
   public boolean onGesture (GestureEvent event)
   {
-    if (event.getType() == GestureEvent.EventType.Touch)
+    if (event.getType() == GestureEvent.EventType.Touch && !initLayout)
     {
       GestureEvent gridEvent = event.clone();
       gridEvent.getTransformation().addToTranslation(invMatrix);
@@ -185,7 +185,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     {
       itemID = xml.getAttributeID("id");
       this.owner = owner;
-      fontGroupID = xml.getAttributeID("fontID");
+      fontGroupID = Math.max(xml.getAttributeInt("fontID"), 0);
       String visibleStr = xml.getAttributeValue("visible");
       visible = visibleStr == null || visibleStr.equalsIgnoreCase("true");
 

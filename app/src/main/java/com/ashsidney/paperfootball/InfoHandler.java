@@ -5,16 +5,17 @@ public class InfoHandler extends Thread
 {
   /**
    * Funkcia na zobrazenie spravy na pozadovany cas
-   * @param messageID
-   * @param timeout
+   * @param layerID identifikacia vrstvy s oznamom
+   * @param messageID identifikacia oznamu
+   * @param timeout trvanie oznamu v sekundach
    */
-  public static void showInfo (int messageID, float timeout)
+  public static void showInfo (int layerID, int messageID, float timeout)
   {
     // zhasni aktualny oznam
     if (currInfo != null)
       currInfo.close();
     // vytvor novy oznam
-    currInfo = new InfoHandler(messageID, timeout);
+    currInfo = new InfoHandler(layerID, messageID, timeout);
     // spusti oznam
     currInfo.start();
   }
@@ -24,8 +25,9 @@ public class InfoHandler extends Thread
    * @param messageID identifikator polozky so spravou
    * @param timeout casovy interval zobrazenia spravy
    */
-  protected InfoHandler (int messageID, float timeout)
+  protected InfoHandler (int layerID, int messageID, float timeout)
   {
+    this.layerID = layerID;
     this.messageID = messageID;
     this.timeout = timeout;
   }
@@ -38,12 +40,12 @@ public class InfoHandler extends Thread
   {
     // prejdi vsetky polozky v mriezke a nastav viditelnost vybranej sprave
     PaperFootballActivity act = PaperFootballActivity.GetActivity();
-    UIGrid grid = (UIGrid)act.getUILayer(infoGridID);
+    UIGrid grid = (UIGrid)act.getUILayer(layerID);
     if (grid != null)
       for (UIGrid.Item item : grid.getItems())
         item.setVisible(item.getItemID() == messageID);
     // zobraz oznam
-    opened = act.openUI(infoGridID);
+    opened = act.openUI(layerID);
     // nechaj ho svietit po zvoleny cas
     try
     {
@@ -58,15 +60,14 @@ public class InfoHandler extends Thread
   {
     // zavri oznam
     if (opened)
-      PaperFootballActivity.GetActivity().closeUI(infoGridID);
+      PaperFootballActivity.GetActivity().closeUI(layerID);
     opened = false;
   }
 
+  protected int layerID;
   protected int messageID;
   protected float timeout;
   protected boolean opened = false;
 
   protected static InfoHandler currInfo = null;
-
-  protected static int infoGridID = R.id.infoLayer;
 }
