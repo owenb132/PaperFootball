@@ -38,6 +38,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
   public synchronized void doRedraw ()
   {
+    refreshRequest = true;
     notify();
   }
   
@@ -45,8 +46,11 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   {
     try
     {
-      if (isAnimation())
+      if (isRefresh())
+      {
+        refreshRequest = false;
         wait(frameWait);
+      }
       else
         wait();
     }
@@ -87,9 +91,9 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
     return ready;
   }
 
-  protected synchronized boolean isAnimation ()
+  protected synchronized boolean isRefresh ()
   {
-    return view.isAnimation() || !animations.isEmpty();
+    return view.isAnimation() || !animations.isEmpty() || refreshRequest;
   }
 
   protected void redraw ()
@@ -203,11 +207,6 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
     return false;
   }
 
-  public void setFrameWait (long fw)
-  {
-    frameWait = fw;
-  }
-  
   public synchronized BallAnimation getAnimation ()
   {
     return animations.isEmpty() ? null : animations.get(0);
@@ -279,6 +278,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
   protected boolean running = false;
   protected boolean ready = false;
+  protected boolean refreshRequest = false;
   protected long frameWait = 10;
 
   private int backgroundColor = 0xffffffff;
