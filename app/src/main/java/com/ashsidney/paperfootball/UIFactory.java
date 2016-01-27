@@ -87,8 +87,8 @@ public class UIFactory
 
     switch (xml.parser.getName())
     {
-      case "grid":
-        layer = new UIGrid();
+      case "actionRunGame":
+        action = new UIActionRunGame();
         break;
     }
 

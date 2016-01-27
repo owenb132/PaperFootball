@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
   <grid android:id="@+id/ovladanie">
     <item android:id="@+id/doMenu">
       <position orientation="both" row="0" column="0"
-          columnPosition="0.0" rowPosition="0.0">
+                columnPosition="0.0" rowPosition="0.0">
         <textSprite>
           <bitmap android:id="@drawable/menu_background"/>
           <text android:id="@string/menu"/>
@@ -20,10 +21,41 @@
     </item>
     <item android:id="@+id/undo">
       <position orientation="both" row="0" column="2"
-          columnPosition="1.0" rowPosition="0.0">
+                columnPosition="1.0" rowPosition="0.0">
         <textSprite>
           <bitmap android:id="@drawable/menu_background"/>
           <text android:id="@string/undo"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+  </grid>
+
+  <grid android:id="@+id/hlavneMenu" exclusive="true">
+    <item android:id="@+id/startHra1">
+      <position orientation="both" row="0" column="0">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background"/>
+          <text android:id="@string/startGame"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+      <actionRunGame/>
+    </item>
+    <item android:id="@+id/startHra2">
+      <position orientation="both" row="1" column="0">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background"/>
+          <text android:id="@string/startGame2"/>
+          <border width="0.5" height="0.5"/>
+        </textSprite>
+      </position>
+    </item>
+    <item android:id="@+id/moznosti">
+      <position orientation="both" row="2" column="0">
+        <textSprite>
+          <bitmap android:id="@drawable/menu_background"/>
+          <text android:id="@string/options"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
       </position>

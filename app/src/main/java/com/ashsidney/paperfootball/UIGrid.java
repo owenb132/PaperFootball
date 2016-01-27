@@ -39,6 +39,8 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     float scale = xml.getAttributeFloat("maxScale");
     if (scale > 0.0f)
       maxScale = scale;
+    exclusiveGesture = xml.getAttributeBool("exclusive", exclusiveGesture);
+
     xml.loadChildNodes(this);
   }
 
@@ -100,7 +102,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
           if (item.onGesture(gridEvent))
             return true;
     }
-    return false;
+    return exclusiveGesture;
   }
 
 
@@ -186,8 +188,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       itemID = xml.getAttributeID("id");
       this.owner = owner;
       fontGroupID = Math.max(xml.getAttributeInt("fontID"), 0);
-      String visibleStr = xml.getAttributeValue("visible");
-      visible = visibleStr == null || visibleStr.equalsIgnoreCase("true");
+      visible = xml.getAttributeBool("visible", visible);
 
       xml.loadChildNodes(this);
     }
@@ -196,12 +197,15 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     public boolean createChild (XMLHelper xml)
         throws IOException, XmlPullParserException
     {
+      UIFactory.UIAction newAction = UIFactory.createAction(xml, owner);
+      if (newAction != null)
+      {
+        action = newAction;
+        return true;
+      }
+
       switch (xml.parser.getName())
       {
-        case "action":
-          xml.parser.next();
-          action = UIFactory.createAction(xml, owner);
-          return action != null;
         case "position":
           OrientedPosition position = new OrientedPosition();
           position.load(xml);
@@ -263,15 +267,15 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
     /// identifikator polozky menu
     protected int itemID;
     /// vlastnik polozky menu
-    protected UIGrid owner;
+    protected UIGrid owner = null;
     /// akcia vykonana, ked je polozka UI aktivovana
-    protected UIFactory.UIAction action;
+    protected UIFactory.UIAction action = null;
     /// pozicie polozky v roznych orientaciach
     protected ArrayList<OrientedPosition> positions = new ArrayList<>();
     /// cislo skupiny velkosti fontu
-    protected int fontGroupID;
+    protected int fontGroupID = 0;
     /// ci je polozka viditelna alebo nie
-    protected boolean visible;
+    protected boolean visible = true;
   }
 
   /**
@@ -429,6 +433,9 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   protected HashMap<Integer, FontGroup> groups = new HashMap<>();
   /// maximalna hodnota skalovania vrstvy
   float maxScale = 1.0f;
+  /// exkluzivny pristup k ovladaniu
+  boolean exclusiveGesture = false;
+
   /// rozlozenie poloziek ma byt inicializovane
   protected boolean initLayout = true;
   /// matica zobrazenia

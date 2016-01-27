@@ -33,7 +33,8 @@ public class GestureHandler
   protected synchronized void sendGesture (GestureEvent event)
   {
     for (Listener lst : listeners)
-      lst.onGesture(event);
+      if (lst.onGesture(event))
+        break;
   }
 
   protected ArrayList<Listener> listeners = new ArrayList<>();

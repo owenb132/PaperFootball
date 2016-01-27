@@ -60,6 +60,19 @@ public class XMLHelper
     return resources.getString(getAttributeID(attrName));
   }
 
+  public boolean getAttributeBool (String attrName, boolean defValue)
+  {
+    String value = getAttributeValue(attrName);
+    if (value != null)
+    {
+      if (value.equalsIgnoreCase("true"))
+        return true;
+      if (value.equalsIgnoreCase("false"))
+        return false;
+    }
+    return defValue;
+  }
+
   public void loadChildNodes (ConfigOwner owner)
     throws IOException, XmlPullParserException
   {

@@ -10,16 +10,18 @@ public class UIActionRunGame implements UIFactory.UIAction
   public boolean execute()
   {
     PaperFootballActivity currAct = PaperFootballActivity.GetActivity();
-    currAct.closeUI(layerID);
-    currAct.getGame().clear();
+    currAct.closeUI(ownerID);
+    currAct.getGame().reset();
+    currAct.getView().reset();
+    currAct.openUI(R.id.ovladanie);
     return true;
   }
 
   @Override
   public void load(XMLHelper xml, Renderer.UILayer layer)
   {
-    layerID = layer.getID();
+    ownerID = layer.getID();
   }
 
-  protected int layerID;
+  protected int ownerID;
 }

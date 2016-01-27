@@ -5,7 +5,7 @@ public class Game implements GestureHandler.Listener
 {
   public Game ()
   {
-    clear();
+    reset();
   }
 
   public void setRenderer (Renderer rend)
@@ -70,7 +70,7 @@ public class Game implements GestureHandler.Listener
     return false;
   }
 
-  public void clear ()
+  public void reset ()
   {
     if (goalNode != null)
       goalNode.clear();

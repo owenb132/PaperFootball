@@ -50,7 +50,7 @@ public class PaperFootballActivity extends AppCompatActivity
     renderer.startRendering();
 
     uiLayers = UIFactory.loadUILayers(R.xml.uilayers, getResources());
-    openUI(R.id.ovladanie);
+    openUI(R.id.hlavneMenu);
 
     game.ready();
   }
@@ -60,7 +60,7 @@ public class PaperFootballActivity extends AppCompatActivity
   {
     super.onPause();
     if (isFinishing())
-      game.clear();
+      game.reset();
   }
 
   @Override
@@ -99,6 +99,15 @@ public class PaperFootballActivity extends AppCompatActivity
   public Game getGame ()
   {
     return game;
+  }
+
+  /**
+   * Spristupni pohlad
+   * @return objekt pohladu
+   */
+  public ViewData getView ()
+  {
+    return viewData;
   }
 
   /// nastav menu na zobrazenie

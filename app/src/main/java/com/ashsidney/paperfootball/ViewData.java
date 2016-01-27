@@ -69,6 +69,12 @@ public class ViewData implements GestureHandler.Listener
     renderer = rend;
   }
 
+  public void reset ()
+  {
+    currentTransform = new ViewTransformation();
+    setSizes(sizes[0], sizes[1]);
+  }
+
   protected boolean isAnimation ()
   {
     return animTime > 0.0f;
