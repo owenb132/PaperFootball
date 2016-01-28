@@ -2,6 +2,7 @@ package com.ashsidney.paperfootball;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.util.Log;
 
 
 public class Transformation
@@ -163,6 +164,14 @@ public class Transformation
   {
     zoom = (float)Math.sqrt(zoomCos * zoomCos + zoomSin * zoomSin);
     rotation = (float)(Math.atan2(zoomSin, zoomCos) * 180.0f / Math.PI);
+  }
+
+  public void log ()
+  {
+    Log.d("PaperFootball", "loc:" + Float.toString(translation[0])
+        + " " + Float.toString(translation[1])
+        + " rot:" + Float.toString(rotation)
+        + " zoom:" + Float.toString(zoom));
   }
 
   

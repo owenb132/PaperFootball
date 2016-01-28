@@ -5,7 +5,7 @@ public class Game implements GestureHandler.Listener
 {
   public Game ()
   {
-    reset();
+    reset(NoGame);
   }
 
   public void setRenderer (Renderer rend)
@@ -70,26 +70,30 @@ public class Game implements GestureHandler.Listener
     return false;
   }
 
-  public void reset ()
+  public void reset (int gmType)
   {
     if (goalNode != null)
       goalNode.clear();
     
     goalNode = new GameNode();
+    gameType = gmType >= NoGame && gmType <= ComputerVSComputer ? gmType : NoGame;
     currPlayer = 1;
     playerMoves = currPlayer;
     ballNode = goalNode;
     ballNode.setPlayer(currPlayer, null);
+
+    ready();
   }
   
   public void ready ()
   {
     if (ballNode == goalNode && ballNode.getPrevious() != null
         || !ballNode.isAbleToPlay(playerMoves == 1))
-      InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 10.0f);
+      InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
     else
-      if (currPlayer == playerMoves)
-        InfoHandler.showInfo(R.id.stavOznam, currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 4.0f);
+      if ((gameType == PlayerVSComputer || gameType == PlayerVSPlayer)
+          && currPlayer == playerMoves)
+        InfoHandler.showInfo(R.id.stavOznam, currPlayer == 1 ? R.id.tahObranca : R.id.tahUtocnik, 1.0f);
   }
   
   protected Renderer renderer;
@@ -98,6 +102,12 @@ public class Game implements GestureHandler.Listener
   protected GameNode ballNode;
   protected int currPlayer;
   protected int playerMoves;
-  
+  protected int gameType = NoGame;
+
+  public static int NoGame = 0;
+  public static int PlayerVSComputer = 1;
+  public static int PlayerVSPlayer = 2;
+  public static int ComputerVSComputer = 3;
+
   public static final float[][] directions = { {1.0f, 0.0f},  {0.0f, -1.0f},  {-1.0f, 0.0f},  {0.0f, 1.0f} };
 }

@@ -225,9 +225,8 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
       if (evPos[0] >= minPos[0] && evPos[0] < maxPos[0]
           && evPos[1] >= minPos[1] && evPos[1] < maxPos[1])
       {
-        if (action != null)
-          action.execute();
-        return true;
+        if (action != null && action.execute())
+          return true;
       }
       return false;
     }
