@@ -1,9 +1,7 @@
 package com.ashsidney.paperfootball;
 
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.util.Log;
 
 
 public class ViewData implements GestureHandler.Listener
@@ -87,11 +85,8 @@ public class ViewData implements GestureHandler.Listener
     GestureEvent.EventType evType = event.getType();
     if (evType == GestureEvent.EventType.Transform)
     {
-      event.log();
       rawTransform.set(lastTransform);
       rawTransform.add(event.getTransformation());
-      Log.d("PaperFootball", "raw transform");
-      rawTransform.log();
       boolean correct = currentTransform.correctView(rawTransform, gameWorld, correctTransform);
       if (correct || animWas)
       {
@@ -107,7 +102,7 @@ public class ViewData implements GestureHandler.Listener
     }
     if (evType == GestureEvent.EventType.Done)
     {
-      lastTransform.set(correctTransform);
+      lastTransform.set(currentTransform);
       animWas = animWas && animTime > 0.0f;
     }
     

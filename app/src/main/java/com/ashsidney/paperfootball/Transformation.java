@@ -166,15 +166,7 @@ public class Transformation
     rotation = (float)(Math.atan2(zoomSin, zoomCos) * 180.0f / Math.PI);
   }
 
-  public void log ()
-  {
-    Log.d("PaperFootball", "loc:" + Float.toString(translation[0])
-        + " " + Float.toString(translation[1])
-        + " rot:" + Float.toString(rotation)
-        + " zoom:" + Float.toString(zoom));
-  }
 
-  
   protected float[] translation = new float[2];
   protected float zoom = 32.0f;
   protected float rotation = 0.0f;

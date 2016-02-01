@@ -27,12 +27,6 @@ public class GestureEvent
     return new GestureEvent(eventType, new Transformation(transform));
   }
 
-  public void log ()
-  {
-    Log.d("PaperFootball", "event data");
-    transform.log();
-  }
-
   protected EventType eventType;
   protected Transformation transform;
 }

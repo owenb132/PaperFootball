@@ -18,8 +18,6 @@ public class ZoomRotateGestureHandler extends GestureHandler implements GestureD
   
   
   protected GestureDetector detector;
-  protected Listener transformer = null;
-  protected Listener consumer = null;
   protected View view = null;
   protected Point viewOffset = null;
   

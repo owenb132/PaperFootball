@@ -6,7 +6,7 @@
       <position orientation="both" row="0" column="0"
                 columnPosition="0.0" rowPosition="0.0">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background"/>
+          <bitmap android:id="@drawable/background"/>
           <text android:id="@string/menu"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
@@ -23,7 +23,7 @@
       <position orientation="both" row="0" column="2"
                 columnPosition="1.0" rowPosition="0.0">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background"/>
+          <bitmap android:id="@drawable/background"/>
           <text android:id="@string/undo"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
@@ -35,7 +35,7 @@
     <item android:id="@+id/startHra1">
       <position orientation="both" row="0" column="0">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background"/>
+          <bitmap android:id="@drawable/background"/>
           <text android:id="@string/startGame"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
@@ -45,16 +45,17 @@
     <item android:id="@+id/startHra2">
       <position orientation="both" row="1" column="0">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background"/>
+          <bitmap android:id="@drawable/background"/>
           <text android:id="@string/startGame2"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
       </position>
+      <actionRunGame gameType="playerPlayer"/>
     </item>
     <item android:id="@+id/moznosti">
       <position orientation="both" row="2" column="0">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background"/>
+          <bitmap android:id="@drawable/background"/>
           <text android:id="@string/options"/>
           <border width="0.5" height="0.5"/>
         </textSprite>
@@ -67,7 +68,7 @@
       <position orientation="both" row="0" column="0"
           columnPosition="0.5" rowPosition="0.3">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background" width="350"/>
+          <bitmap android:id="@drawable/background" width="350"/>
           <text android:id="@string/tahObranca"/>
           <border width="0.2" height="0.5"/>
         </textSprite>
@@ -77,7 +78,7 @@
       <position orientation="both" row="0" column="0"
           columnPosition="0.5" rowPosition="0.3">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background" width="350"/>
+          <bitmap android:id="@drawable/background" width="350"/>
           <text android:id="@string/tahUtocnik"/>
           <border width="0.2" height="0.5"/>
         </textSprite>
@@ -90,7 +91,7 @@
       <position orientation="both" row="0" column="0"
                 columnPosition="0.5" rowPosition="0.3">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background" width="700"/>
+          <bitmap android:id="@drawable/background" width="700"/>
           <text android:id="@string/vyhraObranca"/>
           <border width="0.2" height="0.5"/>
         </textSprite>
@@ -100,7 +101,7 @@
       <position orientation="both" row="0" column="0"
                 columnPosition="0.5" rowPosition="0.3">
         <textSprite>
-          <bitmap android:id="@drawable/menu_background" width="700"/>
+          <bitmap android:id="@drawable/background" width="700"/>
           <text android:id="@string/vyhraUtocnik"/>
           <border width="0.2" height="0.5"/>
         </textSprite>
