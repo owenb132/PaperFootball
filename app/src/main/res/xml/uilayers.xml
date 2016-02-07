@@ -15,7 +15,7 @@
     <item android:id="@+id/gap">
       <position orientation="both" row="0" column="1">
         <empty>
-          <gap width="700" height="300" screenWidth="600" widthCoef="3.0"/>
+          <gap width="512" height="256" screenWidth="600" widthCoef="3.0"/>
         </empty>
       </position>
     </item>
