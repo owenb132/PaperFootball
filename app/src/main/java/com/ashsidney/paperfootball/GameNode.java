@@ -15,7 +15,7 @@ public class GameNode
   public GameNode (GameNode node, int dir)
   {
     for (int i = 0; i < 2; ++i)
-      position[i] = node.position[i] + Game.directions[dir][i];
+      position[i] = node.position[i] + BasePlayer.directions[dir][i];
     // uloz suseda
     addNeighbor(node, dir);
     // index od suseda naproti

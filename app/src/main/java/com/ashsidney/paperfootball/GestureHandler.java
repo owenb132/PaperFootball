@@ -20,13 +20,17 @@ public class GestureHandler
   
   public synchronized void add (Listener listener)
   {
-    assert listener != null;
+    if (BuildConfig.DEBUG && listener == null)
+      throw new AssertionError("Null listener");
+
     listeners.add(0, listener);
   }
 
   public synchronized void remove (Listener listener)
   {
-    assert listener != null;
+    if (BuildConfig.DEBUG && listener == null)
+      throw new AssertionError("Null listener");
+
     listeners.remove(listener);
   }
 

@@ -11,7 +11,7 @@ public class UIActionRunGame implements UIFactory.UIAction
   {
     PaperFootballActivity currAct = PaperFootballActivity.GetActivity();
     currAct.closeUI(ownerID);
-    currAct.getGame().reset(gameType);
+    currAct.getGame().reset(gameType, 2, 0);
     currAct.getView().reset();
     currAct.openUI(R.id.ovladanie);
     return true;
@@ -34,5 +34,5 @@ public class UIActionRunGame implements UIFactory.UIAction
   protected int ownerID;
   protected int gameType;
 
-  protected static final String[] gameTypes = { "noGame", "playerComputer", "playerPlayer", "computerComputer" };
+  protected static final String[] gameTypes = { "noGame", "defenderComputer", "attackerComputer", "playerPlayer", "computerComputer" };
 }

@@ -1,17 +1,22 @@
 package com.ashsidney.paperfootball;
 
-import android.util.Log;
 
 public class GestureEvent
 {
-  public enum EventType { Touch, Transform, Done };
-  
+  public enum EventType { Touch, Transform, Done }
+
   public GestureEvent (EventType evType, Transformation transform)
   {
     eventType = evType;
     this.transform = transform;
   }
-  
+
+  public GestureEvent (GestureEvent event)
+  {
+    eventType = event.eventType;
+    transform = new Transformation(event.transform);
+  }
+
   public EventType getType ()
   {
     return eventType;
@@ -20,11 +25,6 @@ public class GestureEvent
   public Transformation getTransformation ()
   {
     return transform;
-  }
-
-  public GestureEvent clone ()
-  {
-    return new GestureEvent(eventType, new Transformation(transform));
   }
 
   protected EventType eventType;

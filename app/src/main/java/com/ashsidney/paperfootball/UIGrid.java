@@ -95,7 +95,7 @@ public class UIGrid implements Renderer.UILayer, GestureHandler.Listener, XMLHel
   {
     if (event.getType() == GestureEvent.EventType.Touch && !initLayout)
     {
-      GestureEvent gridEvent = event.clone();
+      GestureEvent gridEvent = new GestureEvent(event);
       gridEvent.getTransformation().addToTranslation(invMatrix);
       for (FontGroup group : groups.values())
         for (Item item : group.items)
