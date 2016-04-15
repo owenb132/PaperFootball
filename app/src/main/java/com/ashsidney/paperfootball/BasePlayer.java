@@ -17,7 +17,6 @@ public class BasePlayer
     this.game = game;
     if (game != null)
     {
-      currStepCount = moveStepCount;
       if (moveInfo != 0)
         InfoHandler.showInfo(R.id.stavOznam, moveInfo, 1.0f);
     }
@@ -31,7 +30,6 @@ public class BasePlayer
 
   protected boolean attacker;
   protected int moveStepCount = 0;
-  protected int currStepCount;
   protected int moveInfo = 0;
 
   protected Game game = null;

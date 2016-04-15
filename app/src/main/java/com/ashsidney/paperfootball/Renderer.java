@@ -106,6 +106,9 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
     RectF world = new RectF(view.draw(canvas, currTime));
 
+    int backgroundColor = 0xffffffff;
+    int backLineColor = 0xff8080ff;
+
     canvas.drawColor(backgroundColor);
 
     Paint paint = new Paint();
@@ -115,7 +118,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
       canvas.drawLine(x, world.top, x, world.bottom, paint);
     for (float y = (float)Math.ceil(world.top); y <= world.bottom; y += 1.0f)
       canvas.drawLine(world.left, y, world.right, y, paint);
-    
+
     goal.draw(canvas, paint, currTime);
 
     GameNode animNode = null;
@@ -161,8 +164,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
       canvas.drawLine(animNode.getPosition()[0], animNode.getPosition()[1], animPosition[0], animPosition[1], paint);
     }
 
-    if (animPosition != null)
-      ball.setPosition(animPosition);
+    ball.setPosition(animPosition != null ? animPosition : game.getBall().getPosition());
     ball.draw(canvas, paint, currTime);
 
     synchronized (this)
@@ -285,13 +287,10 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
   protected boolean refreshRequest = false;
   protected long frameWait = 10;
 
-  private int backgroundColor = 0xffffffff;
-  private int backLineColor = 0xff8080ff;
-  
   private Sprite goal;
   private AnimSprite ball;
   
   private ArrayList<BallAnimation> animations = new ArrayList<>();
   
-  private static int[] playerColor = {  0, 0xff00ff00, 0xffff0000 };
+  private static int[] playerColor = { 0xff000000, 0xff00ff00, 0xffff0000 };
 }

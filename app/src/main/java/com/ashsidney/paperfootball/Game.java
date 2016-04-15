@@ -1,10 +1,6 @@
 package com.ashsidney.paperfootball;
 
 
-import android.os.SystemClock;
-import android.util.Log;
-
-
 public class Game implements GestureHandler.Listener
 {
   public Game ()
@@ -19,9 +15,8 @@ public class Game implements GestureHandler.Listener
       goalNode.clear();
 
     goalNode = new GameNode();
-    ballNode = null;
-    currPlayer = 0;
-    setPlayerNode(goalNode);
+    ballNode = goalNode;
+
     this.gameType = gameType >= NoGame && gameType <= ComputerVSComputer ? gameType : NoGame;
 
     // vytvor hracov
@@ -44,6 +39,9 @@ public class Game implements GestureHandler.Listener
         break;
     }
 
+    currPlayer = 0;
+    currMoveCount = 0;
+    setPlayerNode();
     setCurrentPlayer(false);
   }
 
@@ -66,7 +64,7 @@ public class Game implements GestureHandler.Listener
     return ballNode;
   }
 
-  public boolean playerMove (BasePlayer player, int direction)
+  public synchronized boolean playerMove (BasePlayer player, int direction)
   {
     if (BuildConfig.DEBUG && player != players[currPlayer])
       throw new AssertionError("Invalid player");
@@ -74,10 +72,12 @@ public class Game implements GestureHandler.Listener
     GameNode destNode = ballNode.getNeighbor(direction);
     if (destNode.getPlayer() == 0 || destNode == goalNode && currMoveCount == 1)
     {
+      renderer.addAnimation(new BallAnimation(ballNode, destNode));
+      ballNode.setNext(destNode);
+      ballNode = destNode;
       --currMoveCount;
-      if (currMoveCount == 0)
-        setCurrentPlayer(true);
-      setPlayerNode(destNode);
+      if (currMoveCount > 0)
+        setPlayerNode();
       return true;
     }
     return false;
@@ -87,22 +87,22 @@ public class Game implements GestureHandler.Listener
   public synchronized boolean onGesture(GestureEvent event)
   {
     return event.getType() == GestureEvent.EventType.Touch
-      && players[currPlayer].onGesture(event);
+      && currMoveCount > 0 && players[currPlayer].onGesture(event);
   }
 
-  public void ready ()
+  public synchronized void ready ()
   {
-    if (ballNode == goalNode && ballNode.getPrevious() != null
-        || !ballNode.isAbleToPlay(currMoveCount == 1))
+    if ((ballNode != goalNode || ballNode.getPrevious() == null)
+        && ballNode.isAbleToPlay(currMoveCount == 1))
+    {
+      if (currMoveCount == 0)
+      {
+        setCurrentPlayer(true);
+        setPlayerNode();
+      }
+    }
+    else
       InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
-  }
-
-  protected void setPlayerNode (GameNode node)
-  {
-    node.setPlayer(currPlayer + 1, ballNode);
-    if (ballNode != null)
-      renderer.addAnimation(new BallAnimation(ballNode, node));
-    ballNode = node;
   }
 
   protected void setCurrentPlayer (boolean switchPlayers)
@@ -115,6 +115,11 @@ public class Game implements GestureHandler.Listener
     }
     if (players[currPlayer] != null)
       currMoveCount = players[currPlayer].setCurrent(this);
+  }
+
+  protected void setPlayerNode ()
+  {
+    ballNode.setPlayer(currPlayer + 1);
   }
 
   protected Renderer renderer;

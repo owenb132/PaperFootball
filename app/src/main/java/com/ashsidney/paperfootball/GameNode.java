@@ -10,6 +10,7 @@ public class GameNode
   {
     position[0] = 0.0f;
     position[1] = 0.0f;
+    completeNeighbors();
   }
 
   public GameNode (GameNode node, int dir)
@@ -70,6 +71,8 @@ public class GameNode
   public void setNext (GameNode next)
   {
     this.next = next;
+    next.previous = this;
+    next.completeNeighbors();
   }
 
   public GameNode getPrevious ()
@@ -92,16 +95,12 @@ public class GameNode
     return distancePlayer < 0 ? -distancePlayer : 0;
   }
 
-  public void setPlayer (int player, GameNode prev)
+  public void setPlayer (int player)
   {
-    previous = prev;
-    if (prev != null)
-      prev.setNext(this);
     if (getPlayer() == 0)
     {
       int lastDistance = distancePlayer;
       distancePlayer = -player;
-      completeNeighbors();
 
       // zozbieraj uzly pre vypocet vzdialenosti
       HashSet<GameNode> nodes = new HashSet<>();
@@ -126,7 +125,7 @@ public class GameNode
 
   public boolean isAbleToPlay (boolean goalAllowed)
   {
-    if (getPlayer() > 0 && getNext() == null)
+    if (getNext() == null)
       for (int i = 0; i < 4; ++i)
         if (neighbors[i].getDistance() > 0 || goalAllowed && neighbors[i].isStart())
           return true;
