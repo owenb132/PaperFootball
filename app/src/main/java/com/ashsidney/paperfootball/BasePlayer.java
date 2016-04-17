@@ -19,6 +19,7 @@ public class BasePlayer
     {
       if (moveInfo != 0)
         InfoHandler.showInfo(R.id.stavOznam, moveInfo, 1.0f);
+      startCalc();
     }
     return moveStepCount;
   }
@@ -28,9 +29,27 @@ public class BasePlayer
     return false;
   }
 
-  protected boolean attacker;
-  protected int moveStepCount = 0;
-  protected int moveInfo = 0;
+  public boolean isAttacker ()
+  {
+    return attacker;
+  }
+
+  public boolean isDefender ()
+  {
+    return !attacker;
+  }
+
+  public int getStepCount ()
+  {
+    return moveStepCount;
+  }
+
+  protected void startCalc ()
+  {}
+
+  private boolean attacker;
+  private int moveStepCount = 0;
+  private int moveInfo = 0;
 
   protected Game game = null;
 

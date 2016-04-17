@@ -40,7 +40,7 @@
           <border width="0.5" height="0.5"/>
         </textSprite>
       </position>
-      <actionRunGame gameType="playerComputer"/>
+      <actionRunGame gameType="defenderComputer"/>
     </item>
     <item android:id="@+id/startHra2">
       <position orientation="both" row="1" column="0">

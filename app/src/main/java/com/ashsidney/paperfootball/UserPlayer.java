@@ -32,5 +32,4 @@ public class UserPlayer extends BasePlayer
     }
     return false;
   }
-
 }

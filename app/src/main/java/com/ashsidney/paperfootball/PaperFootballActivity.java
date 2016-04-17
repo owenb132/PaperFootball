@@ -51,8 +51,6 @@ public class PaperFootballActivity extends AppCompatActivity
 
     uiLayers = UIFactory.loadUILayers(R.xml.uilayers, getResources());
     openUI(R.id.hlavneMenu);
-
-    game.ready();
   }
 
   @Override

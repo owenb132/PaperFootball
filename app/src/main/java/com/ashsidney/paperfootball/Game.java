@@ -26,8 +26,16 @@ public class Game implements GestureHandler.Listener
         players[0] = players[1] = null;
         break;
       case PlayerDefenderVSComputer:
+        players[0] = new UserPlayer();
+        players[0].init(false, moveCount - 1, R.id.tahObranca);
+        players[1] = new SimpleAIPlayer();
+        players[1].init(true, moveCount, 0);
         break;
       case PlayerAtackerVSComputer:
+        players[0] = new SimpleAIPlayer();
+        players[0].init(false, moveCount - 1, 0);
+        players[1] = new UserPlayer();
+        players[1].init(true, moveCount, R.id.tahUtocnik);
         break;
       case PlayerVSPlayer:
         players[0] = new UserPlayer();
@@ -42,7 +50,7 @@ public class Game implements GestureHandler.Listener
     currPlayer = 0;
     currMoveCount = 0;
     setPlayerNode();
-    setCurrentPlayer(false);
+    setCurrentPlayer();
   }
 
   public void setRenderer (Renderer rend)
@@ -64,7 +72,7 @@ public class Game implements GestureHandler.Listener
     return ballNode;
   }
 
-  public synchronized boolean playerMove (BasePlayer player, int direction)
+  public synchronized int playerMove (BasePlayer player, int direction)
   {
     if (BuildConfig.DEBUG && player != players[currPlayer])
       throw new AssertionError("Invalid player");
@@ -78,9 +86,8 @@ public class Game implements GestureHandler.Listener
       --currMoveCount;
       if (currMoveCount > 0)
         setPlayerNode();
-      return true;
     }
-    return false;
+    return currMoveCount;
   }
 
   @Override
@@ -92,27 +99,25 @@ public class Game implements GestureHandler.Listener
 
   public synchronized void ready ()
   {
-    if ((ballNode != goalNode || ballNode.getPrevious() == null)
-        && ballNode.isAbleToPlay(currMoveCount == 1))
-    {
-      if (currMoveCount == 0)
-      {
-        setCurrentPlayer(true);
-        setPlayerNode();
-      }
-    }
-    else
-      InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
-  }
-
-  protected void setCurrentPlayer (boolean switchPlayers)
-  {
-    if (switchPlayers)
+    if (currMoveCount == 0)
     {
       if (players[currPlayer] != null)
         players[currPlayer].setCurrent(null);
       currPlayer = 1 - currPlayer;
+      setPlayerNode();
     }
+    if ((ballNode != goalNode || ballNode.getPrevious() == null)
+        && ballNode.isAbleToPlay(currMoveCount == 1))
+    {
+      if (currMoveCount == 0)
+        setCurrentPlayer();
+    }
+    else if (gameType != NoGame)
+      InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
+  }
+
+  protected void setCurrentPlayer ()
+  {
     if (players[currPlayer] != null)
       currMoveCount = players[currPlayer].setCurrent(this);
   }
