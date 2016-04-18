@@ -43,11 +43,8 @@ public class GameNode
   {
     if (neighbors != null)
     {
-      GameNode[] nbrs = neighbors;
-      neighbors = null;
       for (int i = 0; i < 4; ++i)
-        if (nbrs[i] != null)
-          nbrs[i].clear();
+        neighbors[i] = null;
       next = null;
       previous = null;
     }
