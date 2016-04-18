@@ -10,10 +10,29 @@ public class Game implements GestureHandler.Listener
 
   public void reset (int gameType, int moveCount, int compLevel)
   {
-    // vytvor herne pole
+    // vymaz herne pole
     if (goalNode != null)
+    {
+      for (int i = 0; i < 4; ++i)
+      {
+        int j = (i + 1) % 4;
+        GameNode node = goalNode.getNeighbor(i);
+        while (iNode != null)
+        {
+          GameNode iNode = node.getNeighbor(i);
+          while (node != null)
+          {
+            GameNode jNode = node.getNeighbor(j);
+            node.clear();
+            node = jNode;
+          }
+          node = iNode;
+        }
+      }
       goalNode.clear();
+    }
 
+    // vytvor herne pole
     goalNode = new GameNode();
     ballNode = goalNode;
 
