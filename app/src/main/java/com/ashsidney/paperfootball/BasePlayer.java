@@ -44,6 +44,8 @@ public class BasePlayer
     return moveStepCount;
   }
 
+  public int getPlayerID () { return attacker ? 2 : 1; }
+
   protected void startCalc ()
   {}
 

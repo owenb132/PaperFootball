@@ -123,40 +123,43 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
 
     GameNode animNode = null;
     float[] animPosition = null;
-    while (!animations.isEmpty())
+    synchronized (this)
     {
-      BallAnimation currAnim = getAnimation();
-      animNode = currAnim.getStartNode();
-      if (!currAnim.isStarted())
+      while (!animations.isEmpty())
       {
-        ball.startAnim(currAnim.getSequence(), currTime, currAnim.getForward(), true);
-        currAnim.setAnimTime(currTime, ball.getAnimTime());
+        BallAnimation currAnim = getAnimation();
+        animNode = currAnim.getStartNode();
+        if (!currAnim.isStarted())
+        {
+          ball.startAnim(currAnim.getSequence(), currTime, currAnim.getForward(), true);
+          currAnim.setAnimTime(currTime, ball.getAnimTime());
+        }
+        animPosition = currAnim.getPosition(currTime);
+        if (currAnim.isEnded(currTime))
+        {
+          removeAnimation();
+          animNode = null;
+        }
+        else
+          break;
       }
-      animPosition = currAnim.getPosition(currTime);
-      if (currAnim.isEnded(currTime))
-      {
-        removeAnimation();
-        animNode = null;
-      }
-      else
-        break;
-    }
 
-    // vykresli drahu hry
-    paint.setStrokeWidth(0.1f);
-    paint.setStrokeCap(Paint.Cap.ROUND);
-    GameNode node = game.getGoal();
-    while (node != animNode && node != null)
-    {
-      paint.setColor(playerColor[node.getPlayer()]);
-      GameNode nNode = node.getNext();
-      if (nNode != null)
+      // vykresli drahu hry
+      paint.setStrokeWidth(0.1f);
+      paint.setStrokeCap(Paint.Cap.ROUND);
+      GameNode node = game.getGoal();
+      while (node != animNode && node != null)
       {
-        canvas.drawLine(node.getPosition()[0], node.getPosition()[1], nNode.getPosition()[0], nNode.getPosition()[1], paint);
-        if (nNode == game.getGoal())
-          nNode = null;
+        paint.setColor(playerColor[node.getPlayer()]);
+        GameNode nNode = node.getNext();
+        if (nNode != null)
+        {
+          canvas.drawLine(node.getPosition()[0], node.getPosition()[1], nNode.getPosition()[0], nNode.getPosition()[1], paint);
+          if (nNode == game.getGoal())
+            nNode = null;
+        }
+        node = nNode;
       }
-      node = nNode;
     }
     if (animNode != null)
     {

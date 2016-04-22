@@ -12,29 +12,12 @@ public class Game implements GestureHandler.Listener
   {
     // vymaz herne pole
     if (goalNode != null)
-    {
-      for (int i = 0; i < 4; ++i)
-      {
-        int j = (i + 1) % 4;
-        GameNode node = goalNode.getNeighbor(i);
-        while (iNode != null)
-        {
-          GameNode iNode = node.getNeighbor(i);
-          while (node != null)
-          {
-            GameNode jNode = node.getNeighbor(j);
-            node.clear();
-            node = jNode;
-          }
-          node = iNode;
-        }
-      }
-      goalNode.clear();
-    }
+      goalNode.clearAll();
 
     // vytvor herne pole
     goalNode = new GameNode();
     ballNode = goalNode;
+    testNode = ballNode;
 
     this.gameType = gameType >= NoGame && gameType <= ComputerVSComputer ? gameType : NoGame;
 
@@ -91,29 +74,9 @@ public class Game implements GestureHandler.Listener
     return ballNode;
   }
 
-  public synchronized int playerMove (BasePlayer player, int direction)
+  public GameNode getTest ()
   {
-    if (BuildConfig.DEBUG && player != players[currPlayer])
-      throw new AssertionError("Invalid player");
-
-    GameNode destNode = ballNode.getNeighbor(direction);
-    if (destNode.getPlayer() == 0 || destNode == goalNode && currMoveCount == 1)
-    {
-      renderer.addAnimation(new BallAnimation(ballNode, destNode));
-      ballNode.setNext(destNode);
-      ballNode = destNode;
-      --currMoveCount;
-      if (currMoveCount > 0)
-        setPlayerNode();
-    }
-    return currMoveCount;
-  }
-
-  @Override
-  public synchronized boolean onGesture(GestureEvent event)
-  {
-    return event.getType() == GestureEvent.EventType.Touch
-      && currMoveCount > 0 && players[currPlayer].onGesture(event);
+    return testNode;
   }
 
   public synchronized void ready ()
@@ -135,6 +98,63 @@ public class Game implements GestureHandler.Listener
       InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
   }
 
+  public synchronized int playerMove (BasePlayer player, int direction)
+  {
+    if (BuildConfig.DEBUG && player != players[currPlayer])
+      throw new AssertionError("Invalid player");
+
+    GameNode destNode = ballNode.canGo(direction, currMoveCount == 1);
+    if (destNode != null)
+    {
+      testRollBack();
+      renderer.addAnimation(new BallAnimation(ballNode, destNode));
+      ballNode.setNext(destNode);
+      ballNode = destNode;
+      testNode = ballNode;
+      --currMoveCount;
+      if (currMoveCount > 0)
+        setPlayerNode();
+    }
+    return currMoveCount;
+  }
+
+  public synchronized boolean testMove (int playerID, int direction, boolean allowStart)
+  {
+    GameNode destNode = testNode.canGo(direction, allowStart);
+    if (destNode != null)
+    {
+      testNode.setNext(destNode);
+      testNode = destNode;
+      testNode.setPlayer(playerID);
+      return true;
+    }
+    return false;
+  }
+
+  public synchronized void testBack ()
+  {
+    if (testNode != ballNode)
+    {
+      GameNode prevNode = testNode.getPrevious();
+      testNode.setPlayer(0);
+      prevNode.setNext(null);
+      testNode = prevNode;
+    }
+  }
+
+  protected void testRollBack ()
+  {
+    while (testNode != ballNode)
+      testBack();
+  }
+
+  @Override
+  public synchronized boolean onGesture(GestureEvent event)
+  {
+    return event.getType() == GestureEvent.EventType.Touch
+      && currMoveCount > 0 && players[currPlayer].onGesture(event);
+  }
+
   protected void setCurrentPlayer ()
   {
     if (players[currPlayer] != null)
@@ -143,7 +163,8 @@ public class Game implements GestureHandler.Listener
 
   protected void setPlayerNode ()
   {
-    ballNode.setPlayer(currPlayer + 1);
+    if (players[currPlayer] != null)
+      ballNode.setPlayer(players[currPlayer].getPlayerID());
   }
 
   protected Renderer renderer;
@@ -154,6 +175,8 @@ public class Game implements GestureHandler.Listener
   protected BasePlayer[] players = { null, null };
   protected int currPlayer;
   protected int currMoveCount;
+
+  protected GameNode testNode = null;
 
   public static final int NoGame = 0;
   public static final int PlayerDefenderVSComputer = 1;
