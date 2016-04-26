@@ -11,7 +11,7 @@ public class UIActionRunGame implements UIFactory.UIAction
   {
     PaperFootballActivity currAct = PaperFootballActivity.GetActivity();
     currAct.closeUI(ownerID);
-    currAct.getGame().reset(gameType, 2, 0);
+    currAct.getGame().reset(defender, attacker, defenderSteps);
     currAct.getView().reset();
     currAct.openUI(R.id.ovladanie);
     return true;
@@ -21,18 +21,22 @@ public class UIActionRunGame implements UIFactory.UIAction
   public void load(XMLHelper xml, Renderer.UILayer layer)
   {
     ownerID = layer.getID();
-    String gameTypeStr = xml.getAttributeValue("gameType");
-    gameType = Game.NoGame;
-    for (int i = 0; i < gameTypes.length; ++i)
-      if (gameTypeStr.equalsIgnoreCase(gameTypes[i]))
-      {
-        gameType = i;
-        break;
-      }
+    String gameType = xml.getAttributeValue("gameType");
+    switch (gameType)
+    {
+      case "defenderComputer":
+        defender = new UserPlayer();
+        attacker = new SimpleAIPlayer();
+      case "playerPlayer":
+        defender = new UserPlayer();
+        attacker = new UserPlayer();
+      default:
+        defender = attacker = null;
+    }
   }
 
-  protected int ownerID;
-  protected int gameType;
-
-  protected static final String[] gameTypes = { "noGame", "defenderComputer", "attackerComputer", "playerPlayer", "computerComputer" };
+  protected int ownerID = 0;
+  protected BasePlayer defender = null;
+  protected BasePlayer attacker = null;
+  protected int defenderSteps = 1;
 }

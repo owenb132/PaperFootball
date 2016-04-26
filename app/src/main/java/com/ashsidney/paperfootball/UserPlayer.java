@@ -6,6 +6,13 @@ package com.ashsidney.paperfootball;
 public class UserPlayer extends BasePlayer
 {
   @Override
+  public void init(boolean attacker, int steps)
+  {
+    super.init(attacker, steps);
+    moveInfo = isAttacker() ? R.id.tahUtocnik : R.id.tahObranca;
+  }
+
+  @Override
   public boolean onGesture (GestureEvent event)
   {
     float[] ballPosition = game.getBall().getPosition();

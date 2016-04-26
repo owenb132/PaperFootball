@@ -58,7 +58,7 @@ public class PaperFootballActivity extends AppCompatActivity
   {
     super.onPause();
     if (isFinishing())
-      game.reset(Game.NoGame, 0, 0);
+      game.reset(null, null, 0);
   }
 
   @Override

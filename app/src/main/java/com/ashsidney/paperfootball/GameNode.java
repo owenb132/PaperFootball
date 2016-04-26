@@ -108,7 +108,7 @@ public class GameNode
 
   public boolean isStart ()
   {
-    return getPlayer() == 1 && getPrevious() == null;
+    return position[0] == 0 && position[1] == 0;
   }
 
   public int getDistance ()
@@ -119,7 +119,7 @@ public class GameNode
   public GameNode canGo (int direction, boolean allowStart)
   {
     GameNode nbr = getNeighbor(direction);
-    if (nbr != null && nbr != getPrevious() && (nbr.getDistance() > 0 || allowStart && nbr.isStart()))
+    if (nbr != null && nbr != getPrevious() && (nbr.getPlayer() == 0 || allowStart && nbr.isStart()))
       return nbr;
     return null;
   }
@@ -131,20 +131,41 @@ public class GameNode
 
   public void setPlayer (int player)
   {
-    int orgPlayer = getPlayer();
-    if (orgPlayer != 0 && player != 0 || orgPlayer == 0 && player == 0)
+    if (isStart() && getPlayer() != 0)
       return;
 
-    int lastDistance = getDistance();
+    if (BuildConfig.DEBUG && (player != 0 && getPlayer() != 0 || player == 0 && getPlayer() == 0))
+      throw new AssertionError("Invalid player");
+
+    int lastDistance = getNeigborsDistance();
     distancePlayer = -player;
-    if (lastDistance <= 0)
-      lastDistance = getNeigborsDistance();
 
     // zozbieraj uzly pre vypocet vzdialenosti
     HashSet<GameNode> nodes = new HashSet<>();
-    for (int i = 0; i < 4; ++i)
-      if (neighbors[i] != null)
-    neighbors[i].collectForDistance(nodes, lastDistance);
+    if (player == 0)
+      nodes.add(this);
+    GameNode node = this;
+    HashSet<GameNode> chckNodes = new HashSet<>();
+    do
+    {
+      for (int i = 0; i < 4; ++i)
+      {
+        GameNode nbr = node.getNeighbor(i);
+        if (nbr != null && (nbr.distancePlayer > lastDistance
+            || nbr.distancePlayer == 0 && !nodes.contains(nbr)))
+          chckNodes.add(nbr);
+      }
+      node = chckNodes.isEmpty() ? null : chckNodes.iterator().next();
+      if (node != null)
+      {
+        lastDistance = node.getDistance();
+        node.distancePlayer = 0;
+        nodes.add(node);
+        chckNodes.remove(node);
+      }
+    }
+    while (node != null);
+
     // vypocitaj vzdialenost uzlov
     boolean recalc = true;
     while (recalc)
@@ -171,18 +192,25 @@ public class GameNode
 
   public int getNeigborsDistance ()
   {
-    int minDistance = Integer.MAX_VALUE;
+    int minDistance = getDistance();
+    if (minDistance > 0 || isStart())
+      return minDistance;
+
+    boolean distNotSet = true;
     for (int i = 0; i < 4; ++i)
     {
       GameNode nbr = getNeighbor(i);
       if (nbr != null)
       {
         int nbrDist = nbr.getDistance();
-        if ((nbrDist > 0 || nbr.isStart()) && nbrDist < minDistance)
+        if ((nbrDist > 0 || nbr.isStart()) && (distNotSet || nbrDist < minDistance))
+        {
           minDistance = nbrDist;
+          distNotSet = false;
+        }
       }
     }
-    return minDistance + 1;
+    return distNotSet ? 0 : minDistance + 1;
   }
 
   protected int rotateDir (int dir, int rot)
@@ -237,20 +265,7 @@ public class GameNode
     if (neighbors[shift] != null)
       neighbors[shift].completeNeighbors(dir, shift);
   }
-  
-  protected void collectForDistance (HashSet<GameNode> nodes, int distance)
-  {
-    if (distancePlayer > distance)
-    {
-      distance = distancePlayer;
-      distancePlayer = 0;
-    }
-    if (distancePlayer == 0 && nodes.add(this))
-      for (int i = 0; i < 4; ++i)
-        if (neighbors[i] != null)
-          neighbors[i].collectForDistance(nodes, distance);
-  }
-  
+
   protected boolean calcDistance ()
   {
     if (distancePlayer == 0)

@@ -155,7 +155,7 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
         if (nNode != null)
         {
           canvas.drawLine(node.getPosition()[0], node.getPosition()[1], nNode.getPosition()[0], nNode.getPosition()[1], paint);
-          if (nNode == game.getGoal())
+          if (nNode == game.getBall())
             nNode = null;
         }
         node = nNode;

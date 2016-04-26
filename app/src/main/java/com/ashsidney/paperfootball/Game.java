@@ -5,10 +5,10 @@ public class Game implements GestureHandler.Listener
 {
   public Game ()
   {
-    reset(NoGame, 0, 0);
+    reset(null, null, 0);
   }
 
-  public void reset (int gameType, int moveCount, int compLevel)
+  public void reset (BasePlayer defender, BasePlayer attacker, int defSteps)
   {
     // vymaz herne pole
     if (goalNode != null)
@@ -19,35 +19,12 @@ public class Game implements GestureHandler.Listener
     ballNode = goalNode;
     testNode = ballNode;
 
-    this.gameType = gameType >= NoGame && gameType <= ComputerVSComputer ? gameType : NoGame;
-
-    // vytvor hracov
-    switch(this.gameType)
-    {
-      case NoGame:
-        players[0] = players[1] = null;
-        break;
-      case PlayerDefenderVSComputer:
-        players[0] = new UserPlayer();
-        players[0].init(false, moveCount - 1, R.id.tahObranca);
-        players[1] = new SimpleAIPlayer();
-        players[1].init(true, moveCount, 0);
-        break;
-      case PlayerAtackerVSComputer:
-        players[0] = new SimpleAIPlayer();
-        players[0].init(false, moveCount - 1, 0);
-        players[1] = new UserPlayer();
-        players[1].init(true, moveCount, R.id.tahUtocnik);
-        break;
-      case PlayerVSPlayer:
-        players[0] = new UserPlayer();
-        players[0].init(false, moveCount - 1, R.id.tahObranca);
-        players[1] = new UserPlayer();
-        players[1].init(true, moveCount, R.id.tahUtocnik);
-        break;
-      case ComputerVSComputer:
-        break;
-    }
+    players[0] = defender;
+    if (players[0] != null)
+      players[0].init(false, defSteps);
+    players[1] = attacker;
+    if (players[1] != null)
+      players[1].init(true, defSteps + 1);
 
     currPlayer = 0;
     currMoveCount = 0;
@@ -94,7 +71,7 @@ public class Game implements GestureHandler.Listener
       if (currMoveCount == 0)
         setCurrentPlayer();
     }
-    else if (gameType != NoGame)
+    else
       InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
   }
 
@@ -136,7 +113,6 @@ public class Game implements GestureHandler.Listener
     if (testNode != ballNode)
     {
       GameNode prevNode = testNode.getPrevious();
-      testNode.setPlayer(0);
       prevNode.setNext(null);
       testNode = prevNode;
     }
@@ -167,9 +143,23 @@ public class Game implements GestureHandler.Listener
       ballNode.setPlayer(players[currPlayer].getPlayerID());
   }
 
+  /*public void outputPath (String msg)
+  {
+    Log.d("PaperFootball", "node path " + msg);
+    GameNode node = goalNode;
+    do
+    {
+      if (node == ballNode)
+        Log.d("PaperFootball", Integer.toString(node.distancePlayer) + ":" + Float.toString(node.position[0]) + " " + Float.toString(node.position[1]) + " ball");
+      else
+        Log.d("PaperFootball", Integer.toString(node.distancePlayer) + ":" + Float.toString(node.position[0]) + " " + Float.toString(node.position[1]));
+      node = node.getNext();
+    }
+    while (node != testNode && node != null);
+  }*/
+
   protected Renderer renderer;
 
-  protected int gameType = NoGame;
   protected GameNode goalNode = null;
   protected GameNode ballNode;
   protected BasePlayer[] players = { null, null };
@@ -177,10 +167,4 @@ public class Game implements GestureHandler.Listener
   protected int currMoveCount;
 
   protected GameNode testNode = null;
-
-  public static final int NoGame = 0;
-  public static final int PlayerDefenderVSComputer = 1;
-  public static final int PlayerAtackerVSComputer = 2;
-  public static final int PlayerVSPlayer = 3;
-  public static final int ComputerVSComputer = 4;
 }

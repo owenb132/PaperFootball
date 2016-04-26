@@ -5,11 +5,10 @@ package com.ashsidney.paperfootball;
  */
 public class BasePlayer
 {
-  protected void init (boolean attacker, int steps, int info)
+  protected void init (boolean attacker, int steps)
   {
     this.attacker = attacker;
     moveStepCount = steps;
-    moveInfo = info;
   }
 
   public int setCurrent (Game game)
@@ -49,9 +48,9 @@ public class BasePlayer
   protected void startCalc ()
   {}
 
-  private boolean attacker;
-  private int moveStepCount = 0;
-  private int moveInfo = 0;
+  protected boolean attacker;
+  protected int moveStepCount = 0;
+  protected int moveInfo = 0;
 
   protected Game game = null;
 

@@ -23,105 +23,89 @@ public class SimpleAIPlayer extends BasePlayer
     public SimpleAIWorker (BasePlayer player)
     {
       this.player = player;
+      stepCycle = 2 * player.getStepCount() + (player.isAttacker() ? -1 : 1);
+      if (player.isAttacker())
+      {
+        int dist = player.game.getBall().getNeigborsDistance();
+        preferDistance = rnd.nextInt(dist) < dist - stepCycle;
+      }
+      for (int i = 0; i < player.getStepCount(); ++i)
+        currDirections.add(0);
     }
 
     @Override
     public void run ()
     {
-      Solutions sols = new Solutions(player.getStepCount());
-      findSolution(player.game.getBall(), sols, player.getStepCount());
-      ArrayList<Integer> moves = sols.getSolution();
+      Log.d("PaperFootball", "finding solution");
+      findSolution(player.game.getBall(), player.getStepCount());
+      //player.game.outputPath("after solution");
+      ArrayList<Integer> moves = getSolution();
       for (int i = 0; i < moves.size(); ++i)
         player.game.playerMove(player, moves.get(i));
     }
 
-    protected class Solutions
+    protected void findSolution (GameNode node, int steps)
     {
-      public Solutions (int steps)
-      {
-        for (int i = 0; i < steps; ++i)
-          currDirections.add(0);
-      }
-
-      public void add (int dir)
-      {
-        currDirections.set(currIndex++, dir);
-      }
-
-      public void remove ()
-      {
-        --currIndex;
-      }
-
-      public void check (int dist, int modRating)
-      {
-        Log.d("PaperFootball", "check " + Integer.toString(modRating) + " " + Integer.toString(dist)
-            + " dirs " + Integer.toString(currDirections.get(0)) + " " + Integer.toString(currDirections.get(1)));
-        if (modRating > modDistance || modRating == modDistance && dist > distance)
-          return;
-        if (modRating < modDistance || dist < distance)
-        {
-          Log.d("PaperFootball", "best match");
-          directions.clear();
-          modDistance = modRating;
-          distance = dist;
-        }
-        Log.d("PaperFootball", "same match");
-        directions.add(new ArrayList<>(currDirections));
-      }
-
-      public ArrayList<Integer> getSolution ()
-      {
-        if (BuildConfig.DEBUG && directions.isEmpty())
-          throw new AssertionError("Solution not found");
-
-        Random rnd = new Random();
-        return directions.get(rnd.nextInt(directions.size()));
-      }
-
-      protected int modDistance = 4;
-      protected int distance = Integer.MAX_VALUE;
-      protected ArrayList<ArrayList<Integer>> directions = new ArrayList<>();
-      protected ArrayList<Integer> currDirections = new ArrayList<>();
-      protected int currIndex = 0;
-    }
-
-    protected void findSolution (GameNode node, Solutions sols, int steps)
-    {
+      //player.game.outputPath("finding solution " + Integer.toString(steps));
       if (steps > 0)
         for (int i = 0; i < 4; ++i)
         {
           if (player.game.testMove(player.getPlayerID(), i, steps == 1))
           {
-            sols.add(i);
-            findSolution(node.getNeighbor(i), sols, steps - 1);
-            sols.remove();
+            currDirections.set(currIndex++, i);
+            findSolution(node.getNeighbor(i), steps - 1);
+            --currIndex;
             player.game.testBack();
+            //player.game.outputPath("after test back");
           }
         }
       else
-        checkSolution(node, sols);
+      {
+        int dist = node.getNeigborsDistance();
+        int modDist = (dist + player.getStepCount()) % stepCycle;
+        int modRating = player.isAttacker() ? 2 : 0;
+        if (modDist == player.getStepCount())
+          modRating = player.isAttacker() ? 0 : 1;
+        else if (modDist == 0)
+          modRating = player.isAttacker() ? 1 : 2;
+        if (player.isDefender())
+          dist = -dist;
+        if (preferDistance)
+        {
+          int tmp = modRating;
+          modRating = dist;
+          dist = tmp;
+        }
+        if (modRating < firstOrder || modRating == firstOrder && dist < secondOrder)
+        {
+          directions.clear();
+          firstOrder = modRating;
+          secondOrder = dist;
+        }
+        if (modRating == firstOrder && dist == secondOrder)
+          directions.add(new ArrayList<>(currDirections));
+      }
     }
 
-    protected void checkSolution (GameNode node, Solutions sols)
+    protected ArrayList<Integer> getSolution ()
     {
-      int stepCycle = 2 *  player.getStepCount() + (player.isAttacker() ? -1 : 1);
-      int dist = node.getNeigborsDistance();
-      int modDist = (dist + player.getStepCount()) % stepCycle;
-      int modRating = 2;
-      if (modDist == player.getStepCount())
-        modRating = 0;
-      else if (modDist == 0)
-        modRating = 1;
-      if (player.isDefender())
-      {
-        modRating = (modRating + 1) % 3;
-        dist = -dist;
-      }
-      sols.check(dist, modRating);
+      if (BuildConfig.DEBUG && directions.isEmpty())
+        throw new AssertionError("Solution not found");
+
+      return directions.get(rnd.nextInt(directions.size()));
     }
 
     protected BasePlayer player;
+    protected int stepCycle;
+    protected boolean preferDistance = false;
+    Random rnd = new Random();
+
+    protected int firstOrder = Integer.MAX_VALUE;
+    protected int secondOrder = Integer.MAX_VALUE;
+    protected ArrayList<ArrayList<Integer>> directions = new ArrayList<>();
+
+    protected ArrayList<Integer> currDirections = new ArrayList<>();
+    protected int currIndex = 0;
   }
 
   protected SimpleAIWorker createWorker ()
