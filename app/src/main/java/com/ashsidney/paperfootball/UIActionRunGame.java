@@ -27,11 +27,14 @@ public class UIActionRunGame implements UIFactory.UIAction
       case "defenderComputer":
         defender = new UserPlayer();
         attacker = new SimpleAIPlayer();
+        break;
       case "playerPlayer":
         defender = new UserPlayer();
         attacker = new UserPlayer();
+        break;
       default:
         defender = attacker = null;
+        break;
     }
   }
 

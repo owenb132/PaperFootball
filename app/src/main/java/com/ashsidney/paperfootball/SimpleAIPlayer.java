@@ -1,6 +1,5 @@
 package com.ashsidney.paperfootball;
 
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,7 +26,7 @@ public class SimpleAIPlayer extends BasePlayer
       if (player.isAttacker())
       {
         int dist = player.game.getBall().getNeigborsDistance();
-        preferDistance = rnd.nextInt(dist) < dist - stepCycle;
+        preferDistance = dist > 0 && rnd.nextInt(dist) < dist - stepCycle;
       }
       for (int i = 0; i < player.getStepCount(); ++i)
         currDirections.add(0);
@@ -36,9 +35,7 @@ public class SimpleAIPlayer extends BasePlayer
     @Override
     public void run ()
     {
-      Log.d("PaperFootball", "finding solution");
       findSolution(player.game.getBall(), player.getStepCount());
-      //player.game.outputPath("after solution");
       ArrayList<Integer> moves = getSolution();
       for (int i = 0; i < moves.size(); ++i)
         player.game.playerMove(player, moves.get(i));
@@ -46,7 +43,6 @@ public class SimpleAIPlayer extends BasePlayer
 
     protected void findSolution (GameNode node, int steps)
     {
-      //player.game.outputPath("finding solution " + Integer.toString(steps));
       if (steps > 0)
         for (int i = 0; i < 4; ++i)
         {
@@ -56,7 +52,6 @@ public class SimpleAIPlayer extends BasePlayer
             findSolution(node.getNeighbor(i), steps - 1);
             --currIndex;
             player.game.testBack();
-            //player.game.outputPath("after test back");
           }
         }
       else
@@ -68,6 +63,8 @@ public class SimpleAIPlayer extends BasePlayer
           modRating = player.isAttacker() ? 0 : 1;
         else if (modDist == 0)
           modRating = player.isAttacker() ? 1 : 2;
+        if (dist == Integer.MAX_VALUE)
+          modRating = player.isAttacker() ? 3 : 0;
         if (player.isDefender())
           dist = -dist;
         if (preferDistance)

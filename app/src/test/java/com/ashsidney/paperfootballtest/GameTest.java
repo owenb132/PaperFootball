@@ -74,6 +74,11 @@ public class GameTest extends TestCase
     assertEquals(1.0, testGame.getTest().getPosition()[0], eps);
     assertEquals(1.0, testGame.getTest().getPosition()[1], eps);
     assertTrue(checkPath(testGame));
+    GameNode unreachNode = testGame.getTest().getNeighbor(3);
+    assertEquals(1.0, unreachNode.getPosition()[0], eps);
+    assertEquals(2.0, unreachNode.getPosition()[1], eps);
+    assertEquals(0, unreachNode.getDistance());
+    assertEquals(0, unreachNode.getPlayer());
 
     testGame.testMove(2, 3, false);
     assertEquals(1.0, testGame.getTest().getPosition()[0], eps);

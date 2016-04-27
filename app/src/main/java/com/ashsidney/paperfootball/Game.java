@@ -1,6 +1,8 @@
 package com.ashsidney.paperfootball;
 
 
+import android.util.Log;
+
 public class Game implements GestureHandler.Listener
 {
   public Game ()
@@ -142,21 +144,6 @@ public class Game implements GestureHandler.Listener
     if (players[currPlayer] != null)
       ballNode.setPlayer(players[currPlayer].getPlayerID());
   }
-
-  /*public void outputPath (String msg)
-  {
-    Log.d("PaperFootball", "node path " + msg);
-    GameNode node = goalNode;
-    do
-    {
-      if (node == ballNode)
-        Log.d("PaperFootball", Integer.toString(node.distancePlayer) + ":" + Float.toString(node.position[0]) + " " + Float.toString(node.position[1]) + " ball");
-      else
-        Log.d("PaperFootball", Integer.toString(node.distancePlayer) + ":" + Float.toString(node.position[0]) + " " + Float.toString(node.position[1]));
-      node = node.getNext();
-    }
-    while (node != testNode && node != null);
-  }*/
 
   protected Renderer renderer;
 

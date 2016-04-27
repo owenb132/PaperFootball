@@ -116,14 +116,6 @@ public class GameNode
     return distancePlayer >= 0 ? distancePlayer : 0;
   }
 
-  public GameNode canGo (int direction, boolean allowStart)
-  {
-    GameNode nbr = getNeighbor(direction);
-    if (nbr != null && nbr != getPrevious() && (nbr.getPlayer() == 0 || allowStart && nbr.isStart()))
-      return nbr;
-    return null;
-  }
-
   public int getPlayer ()
   {
     return distancePlayer < 0 ? -distancePlayer : 0;
@@ -185,9 +177,17 @@ public class GameNode
   {
     if (getNext() == null)
       for (int i = 0; i < 4; ++i)
-        if (canGo(i, allowStart) != null)
+        if (neighbors[i].getDistance() > 0 || allowStart && neighbors[i].isStart())
           return true;
     return false;
+  }
+
+  public GameNode canGo (int direction, boolean allowStart)
+  {
+    GameNode nbr = getNeighbor(direction);
+    if (nbr != null && (nbr.getPlayer() == 0 || allowStart && nbr.isStart()))
+      return nbr;
+    return null;
   }
 
   public int getNeigborsDistance ()
@@ -196,21 +196,18 @@ public class GameNode
     if (minDistance > 0 || isStart())
       return minDistance;
 
-    boolean distNotSet = true;
+    minDistance = Integer.MAX_VALUE;
     for (int i = 0; i < 4; ++i)
     {
       GameNode nbr = getNeighbor(i);
       if (nbr != null)
       {
         int nbrDist = nbr.getDistance();
-        if ((nbrDist > 0 || nbr.isStart()) && (distNotSet || nbrDist < minDistance))
-        {
+        if ((nbrDist > 0 || nbr.isStart()) && nbrDist < minDistance)
           minDistance = nbrDist;
-          distNotSet = false;
-        }
       }
     }
-    return distNotSet ? 0 : minDistance + 1;
+    return minDistance + (minDistance == Integer.MAX_VALUE ? 0 : 1);
   }
 
   protected int rotateDir (int dir, int rot)
