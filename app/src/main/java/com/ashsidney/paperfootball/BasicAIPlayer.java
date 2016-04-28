@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * Zakladna trieda pre hraca umelej inteligencie.
  */
-public class SimpleAIPlayer extends BasePlayer
+public class BasicAIPlayer extends BasePlayer
 {
   @Override
   protected void startCalc ()
@@ -26,7 +26,7 @@ public class SimpleAIPlayer extends BasePlayer
       if (player.isAttacker())
       {
         int dist = player.game.getBall().getNeigborsDistance();
-        preferDistance = dist > 0 && rnd.nextInt(dist) < dist - 2 * stepCycle;
+        preferDistance = 2 * stepCycle + rnd.nextInt(stepCycle) < dist;
       }
       for (int i = 0; i < player.getStepCount(); ++i)
         currDirections.add(0);
@@ -56,30 +56,16 @@ public class SimpleAIPlayer extends BasePlayer
         }
       else
       {
-        int dist = node.getNeigborsDistance();
-        int modDist = (dist + player.getStepCount()) % stepCycle;
-        int modRating = player.isAttacker() ? 2 : 0;
-        if (modDist == player.getStepCount())
-          modRating = player.isAttacker() ? 0 : 1;
-        else if (modDist == 0)
-          modRating = player.isAttacker() ? 1 : 2;
-        if (dist == Integer.MAX_VALUE)
-          modRating = player.isAttacker() ? 3 : 0;
-        if (player.isDefender())
-          dist = -dist;
-        if (preferDistance)
-        {
-          int tmp = modRating;
-          modRating = dist;
-          dist = tmp;
-        }
-        if (modRating < firstOrder || modRating == firstOrder && dist < secondOrder)
+        PositionRating currRat = new PositionRating(node.getNeigborsDistance(), player.getStepCount(), stepCycle, player.isAttacker());
+
+        processRating(currRat);
+
+        if (currRat.better(rating))
         {
           directions.clear();
-          firstOrder = modRating;
-          secondOrder = dist;
+          rating.set(currRat);
         }
-        if (modRating == firstOrder && dist == secondOrder)
+        if (currRat.equal(rating))
           directions.add(new ArrayList<>(currDirections));
       }
     }
@@ -92,13 +78,68 @@ public class SimpleAIPlayer extends BasePlayer
       return directions.get(rnd.nextInt(directions.size()));
     }
 
+    protected void processRating (PositionRating rat)
+    {
+      if (preferDistance)
+        rat.swap();
+    }
+
+    protected class PositionRating
+    {
+      public PositionRating ()
+      {
+        rating1 = rating2 = Integer.MAX_VALUE;
+      }
+
+      public PositionRating (int dist, int steps, int stepCycle, boolean isAttacker)
+      {
+        int modDist = (dist + steps) % stepCycle;
+        int modRating = isAttacker ? 2 : 0;
+        if (modDist == steps)
+          modRating = isAttacker ? 0 : 1;
+        else if (modDist == 0)
+          modRating = isAttacker ? 1 : 2;
+        if (dist == Integer.MAX_VALUE)
+          modRating = isAttacker ? 3 : 0;
+        if (!isAttacker)
+          dist = -dist;
+        rating1 = modRating;
+        rating2 = dist;
+      }
+
+      public void set (PositionRating obj)
+      {
+        rating1 = obj.rating1;
+        rating2 = obj.rating2;
+      }
+
+      public boolean equal (PositionRating obj)
+      {
+        return rating1 == obj.rating1 && rating2 == obj.rating2;
+      }
+
+      public boolean better (PositionRating obj)
+      {
+        return rating1 < obj.rating1 || rating1 == obj.rating1 && rating2 < obj.rating2;
+      }
+
+      public void swap ()
+      {
+        int tmp = rating1;
+        rating1 = rating2;
+        rating2 = tmp;
+      }
+
+      protected int rating1;
+      protected int rating2;
+    }
+
     protected BasePlayer player;
     protected int stepCycle;
     protected boolean preferDistance = false;
     Random rnd = new Random();
 
-    protected int firstOrder = Integer.MAX_VALUE;
-    protected int secondOrder = Integer.MAX_VALUE;
+    protected PositionRating rating = new PositionRating();
     protected ArrayList<ArrayList<Integer>> directions = new ArrayList<>();
 
     protected ArrayList<Integer> currDirections = new ArrayList<>();

@@ -190,6 +190,14 @@ public class GameNode
     return null;
   }
 
+  public boolean atDeadEnd ()
+  {
+    for (int i = 0; i < 4; ++i)
+      if (neighbors[i].getDistance() == 0 && neighbors[i].getPlayer() == 0)
+        return true;
+    return false;
+  }
+
   public int getNeigborsDistance ()
   {
     int minDistance = getDistance();
