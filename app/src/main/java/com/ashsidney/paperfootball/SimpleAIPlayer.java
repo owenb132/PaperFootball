@@ -26,7 +26,7 @@ public class SimpleAIPlayer extends BasePlayer
       if (player.isAttacker())
       {
         int dist = player.game.getBall().getNeigborsDistance();
-        preferDistance = dist > 0 && rnd.nextInt(dist) < dist - stepCycle;
+        preferDistance = dist > 0 && rnd.nextInt(dist) < dist - 2 * stepCycle;
       }
       for (int i = 0; i < player.getStepCount(); ++i)
         currDirections.add(0);
