@@ -35,13 +35,13 @@ public class BasicAIPlayer extends BasePlayer
     @Override
     public void run ()
     {
-      findSolution(player.game.getBall(), player.getStepCount());
+      findSolution(player.getStepCount());
       ArrayList<Integer> moves = getSolution();
       for (int i = 0; i < moves.size(); ++i)
         player.game.playerMove(player, moves.get(i));
     }
 
-    protected void findSolution (GameNode node, int steps)
+    protected void findSolution (int steps)
     {
       if (steps > 0)
         for (int i = 0; i < 4; ++i)
@@ -49,14 +49,15 @@ public class BasicAIPlayer extends BasePlayer
           if (player.game.testMove(player.getPlayerID(), i, steps == 1))
           {
             currDirections.set(currIndex++, i);
-            findSolution(node.getNeighbor(i), steps - 1);
+            findSolution(steps - 1);
             --currIndex;
             player.game.testBack();
           }
         }
       else
       {
-        PositionRating currRat = new PositionRating(node.getNeigborsDistance(), player.getStepCount(), stepCycle, player.isAttacker());
+        PositionRating currRat = new PositionRating(player.game.getTest().getNeigborsDistance(),
+            player.getStepCount(), stepCycle, player.isAttacker());
 
         processRating(currRat);
 
@@ -121,6 +122,11 @@ public class BasicAIPlayer extends BasePlayer
       public boolean better (PositionRating obj)
       {
         return rating1 < obj.rating1 || rating1 == obj.rating1 && rating2 < obj.rating2;
+      }
+
+      public void setRating1 (int rat)
+      {
+        rating1 = rat;
       }
 
       public void swap ()

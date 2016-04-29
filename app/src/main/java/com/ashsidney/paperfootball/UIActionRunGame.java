@@ -22,11 +22,24 @@ public class UIActionRunGame implements UIFactory.UIAction
   {
     ownerID = layer.getID();
     String gameType = xml.getAttributeValue("gameType");
+    int level = xml.getAttributeInt("level");
     switch (gameType)
     {
+      case "attackerComputer":
+        defender = new BasicAIPlayer();
+        attacker = new UserPlayer();
+        break;
       case "defenderComputer":
         defender = new UserPlayer();
-        attacker = new BasicAIPlayer();
+        switch (level)
+        {
+          case 1:
+            attacker = new AttackAIPlayer();
+            break;
+          default:
+            attacker = new BasicAIPlayer();
+            break;
+        }
         break;
       case "playerPlayer":
         defender = new UserPlayer();
@@ -39,6 +52,7 @@ public class UIActionRunGame implements UIFactory.UIAction
   }
 
   protected int ownerID = 0;
+
   protected BasePlayer defender = null;
   protected BasePlayer attacker = null;
   protected int defenderSteps = 1;
