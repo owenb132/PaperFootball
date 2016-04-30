@@ -257,6 +257,14 @@ public class Renderer extends Thread implements SurfaceHolder.Callback, XMLHelpe
     doRedraw();
   }
 
+  public ArrayList<Integer> getLayers ()
+  {
+    ArrayList<Integer> layers = new ArrayList<>();
+    for (UILayer layer : uiLayers)
+      layers.add(layer.getID());
+    return layers;
+  }
+
   @Override
   public void surfaceChanged (SurfaceHolder holder, int format, int width, int height)
   {

@@ -50,7 +50,9 @@ public class PaperFootballActivity extends AppCompatActivity
     renderer.startRendering();
 
     uiLayers = UIFactory.loadUILayers(R.xml.uilayers, getResources());
-    openUI(R.id.hlavneMenu);
+    restoreUI();
+
+    game.ready();
   }
 
   @Override
@@ -115,6 +117,8 @@ public class PaperFootballActivity extends AppCompatActivity
     for (Renderer.UILayer layer : uiLayers)
       if (layer.getID() == layerID)
       {
+        // zapis id
+        retainData.addLayerID(layerID);
         // nastav vrstvu na zobrazenie
         renderer.addUI(layer);
         // nastav vrstvu na vstup od pouzivatela
@@ -130,12 +134,33 @@ public class PaperFootballActivity extends AppCompatActivity
     for (Renderer.UILayer layer : uiLayers)
       if (layer.getID() == layerID)
       {
+        // zrus id
+        retainData.removeLayerID(layerID);
         // nastav vrstvu na zobrazenie
         renderer.removeUI(layer);
         // nastav vrstvu na vstup od pouzivatela
         gestureHandler.remove((GestureHandler.Listener) layer);
         break;
       }
+  }
+
+  /// obnov menu
+  public void restoreUI ()
+  {
+    // prejdi vsetky ulozene vrstvy
+    for (int layerID : retainData.getLayerIDs())
+    {
+      // najdi vrstvu s pozadovanym id a zobraz ju
+      for (Renderer.UILayer layer : uiLayers)
+        if (layer.getID() == layerID)
+        {
+          // nastav vrstvu na zobrazenie
+          renderer.addUI(layer);
+          // nastav vrstvu na vstup od pouzivatela
+          gestureHandler.add((GestureHandler.Listener)layer);
+          break;
+        }
+    }
   }
 
   /**

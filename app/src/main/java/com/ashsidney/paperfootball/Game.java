@@ -1,8 +1,6 @@
 package com.ashsidney.paperfootball;
 
 
-import android.util.Log;
-
 public class Game implements GestureHandler.Listener
 {
   public Game ()
@@ -73,7 +71,7 @@ public class Game implements GestureHandler.Listener
       if (currMoveCount == 0)
         setCurrentPlayer();
     }
-    else
+    else if (players[0] != null && players[1] != null)
       InfoHandler.showInfo(R.id.vysledokOznam, ballNode == goalNode ? R.id.vyhraUtocnik : R.id.vyhraObranca, 5.0f);
   }
 

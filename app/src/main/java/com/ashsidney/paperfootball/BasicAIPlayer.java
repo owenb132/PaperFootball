@@ -102,6 +102,8 @@ public class BasicAIPlayer extends BasePlayer
           modRating = isAttacker ? 1 : 2;
         if (dist == Integer.MAX_VALUE)
           modRating = isAttacker ? 3 : 0;
+        else if (dist == 0 && !isAttacker)
+          modRating = 3;
         if (!isAttacker)
           dist = -dist;
         rating1 = modRating;
