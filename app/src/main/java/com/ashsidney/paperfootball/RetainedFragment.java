@@ -63,6 +63,8 @@ public class RetainedFragment extends Fragment
 
   public void removeLayerID (int layerID)
   {
-    layerIDs.remove(layerIDs.indexOf(layerID));
+    int idx = layerIDs.indexOf(layerID);
+    if (idx >= 0)
+      layerIDs.remove(idx);
   }
 }
